@@ -44,6 +44,13 @@ where = ["."]
 [tool.setuptools.package-data]
 mypkg = ["*.txt", "*.j2"]
 
+[project.dependencies]
+pandas = "*"
+pydantic = "*"
+Jinja2 = "*"
+astropy = "*"
+numpy = "*"
+
 [tool.ruff]
 line-length = 79
 indent-width = 4
