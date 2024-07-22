@@ -1,0 +1,12 @@
+database:
+  type: mysql
+  host: local
+  user: kd
+  password: pfd
+  token: 
+  port: 3006
+
+
+fits_files:
+  name: bla
+
