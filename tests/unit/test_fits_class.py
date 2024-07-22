@@ -46,7 +46,7 @@ def test_fits_path_not_a_fits_file():
 
 def test_corrupt_fits_file():
     path = Path(
-        r"C:\Users\cedric.renda\Documents\fits2db\tests\unit\data\2021-07-07_L1a_corrupt.fits"
+        r"tests\unit\data\2021-07-07_L1a_corrupt.fits"
     )
     with pytest.raises(ValueError):
         FitsFile(path)
