@@ -33,6 +33,13 @@ classifiers = [
     "Topic :: System :: Software Distribution",
     "Typing :: Typed"
 ]
+dependencies = [
+"pandas >= 2.0",
+"pydantic >= 2.8.0",
+"Jinja2 >= 2.5.0",
+"astropy >= 6.0.0",
+"numpy >= 1.0.0",
+]
 
 [project.urls]
 Homepage = "https://github.com/pmodwrc/fits2db"
@@ -44,12 +51,8 @@ where = ["."]
 [tool.setuptools.package-data]
 mypkg = ["*.txt", "*.j2"]
 
-[project.dependencies]
-pandas = "*"
-pydantic = "*"
-Jinja2 = "*"
-astropy = "*"
-numpy = "*"
+
+
 
 [tool.ruff]
 line-length = 79
