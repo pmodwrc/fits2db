@@ -38,7 +38,7 @@ dependencies = [
 "pydantic >= 2.8.0",
 "Jinja2 >= 2.5.0",
 "astropy >= 6.0.0",
-"numpy >= 1.0.0",
+"numpy >= 1.0.0, < 2.0",
 ]
 
 [project.urls]

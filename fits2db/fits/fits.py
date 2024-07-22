@@ -14,7 +14,6 @@ from pathlib import Path
 counter = count()
 
 
-@dataclass
 class FitsTable(TypedDict):
     name: str
     meta: pd.DataFrame
