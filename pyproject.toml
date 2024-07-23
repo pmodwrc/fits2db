@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fits2db"
-version = "0.0.1"
+version = "0.0.1b"
 authors = [
   { name="Cédric Renda", email="gosow9@hotmail.com" },
 ]
@@ -15,7 +15,7 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
-    "Development Status :: 1 - Developement/Unstable",
+    "Development Status :: 1 - Planning",
     "Intended Audience :: Developers",
     "Intended Audience :: End Users/Desktop",
     "Intended Audience :: Science/Research",

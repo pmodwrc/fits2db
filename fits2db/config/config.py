@@ -11,7 +11,7 @@ from jinja2 import Environment, FileSystemLoader
 
 
 def get_configs(path: Union[str, os.PathLike]) -> ConfigType:
-    """_summary_
+    """Loads config file from given path
 
     Args:
         path (Union[str, os.PathLike]): Path to config yaml file
@@ -21,24 +21,39 @@ def get_configs(path: Union[str, os.PathLike]) -> ConfigType:
     """
     config_validator = ConfigFileValidator(path=path)
     with open(config_validator.path, "r", encoding="utf-8") as file:
-        config_data = yaml.safe_load(file)
-    try: 
+        try:
+            config_data = yaml.safe_load(file)
+        except yaml.YAMLError as err:
+            print("YAML loading error:", err)
+            return {}
+
+    try:
         data = ApplicationConfig(**config_data).model_dump()
-    except Exception as err:
-        print('Config file error:', err)
-        data = {}
+    except (TypeError, ValueError) as err:
+        print("Config file validation error:", err)
+        return {}
+    
     return data
 
 
-def render_template(template_name, context):
-    template_path = os.path.join(os.path.dirname(__file__), 'templates')
+def render_template(template_name: str, context: dict) -> str:
+    """Renders a given template under the relative template directory
+
+    Args:
+        template_name (str): Name of template
+        context (dict): Dict with template conext
+
+    Returns:
+        str: Rendered template as str
+    """
+    template_path = os.path.join(os.path.dirname(__file__), "templates")
     env = Environment(loader=FileSystemLoader(template_path))
     template = env.get_template(template_name)
     return template.render(context)
 
-def generate_config():    
-    config_content = render_template('config.yaml.j2', {'db_type': "mysql"})
-    with open(os.path.join('config.yaml'), 'w') as f:
-        f.write(config_content)
-    
 
+def generate_config():
+    """Generate a example config file."""
+    config_content = render_template("config.yaml.j2", {"db_type": "mysql"})
+    with open(os.path.join("config.yaml"), "w", encoding="utf-8") as f:
+        f.write(config_content)
