@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="docs/layout/images/fits_logo.png" alt="fits2db" width="500"/>
+    <img src="https://raw.githubusercontent.com/pmodwrc/fits2db/main/docs/layout/images/fits_logo.png" alt="fits2db" width="500"/>
 </p>
 
 -----------------
