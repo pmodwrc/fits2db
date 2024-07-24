@@ -39,6 +39,7 @@ dependencies = [
 "Jinja2 >= 2.5.0",
 "astropy >= 6.0.0",
 "numpy >= 1.0.0, < 2.0",
+"sqlalchemy >= 2.0.0"
 ]
 
 [project.urls]
