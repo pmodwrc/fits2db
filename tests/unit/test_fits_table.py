@@ -29,12 +29,9 @@ def fits_file(create_sample_fits_file):
 def test_get_table_valid(fits_file):
     """Test getting a valid table from the FITS file."""
     table = fits_file.get_table(SAMPLE_TABLE_NAME)
-    assert 'name' in table
-    assert 'data' in table
-    assert 'meta' in table
-    assert table['name'] == SAMPLE_TABLE_NAME
-    assert isinstance(table['data'], pd.DataFrame)
-    assert isinstance(table['meta'], pd.DataFrame)
+    assert table.name == SAMPLE_TABLE_NAME
+    assert isinstance(table.data, pd.DataFrame)
+    assert isinstance(table.meta, pd.DataFrame)
 
 def test_get_table_invalid_table_name(fits_file):
     """Test getting a table with an invalid name from the FITS file."""

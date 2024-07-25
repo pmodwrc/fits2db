@@ -2,12 +2,12 @@
 This module contains the configuration validation for the FITS to database application.
 """
 
-from .config_model import ConfigFileValidator, ApplicationConfig, ConfigType
-
 from typing import Union
 import yaml
 import os
 from jinja2 import Environment, FileSystemLoader
+
+from .config_model import ConfigFileValidator, ApplicationConfig, ConfigType
 
 
 def get_configs(path: Union[str, os.PathLike]) -> ConfigType:
@@ -32,7 +32,7 @@ def get_configs(path: Union[str, os.PathLike]) -> ConfigType:
     except (TypeError, ValueError) as err:
         print("Config file validation error:", err)
         return {}
-    
+
     return data
 
 

@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "fits2db"
 version = "0.0.1b1"
 authors = [
-  { name="Cédric Renda", email="gosow9@hotmail.com" },
+  { name="Cédric Renda", email="cedric.renda@hotmail.com" },
 ]
 description = "A small cli tool to load fits files into a sql database"
 readme = "README.md"
@@ -39,12 +39,16 @@ dependencies = [
 "Jinja2 >= 2.5.0",
 "astropy >= 6.0.0",
 "numpy >= 1.0.0, < 2.0",
-"sqlalchemy >= 2.0.0"
+"sqlalchemy >= 2.0.0",
+"tqdm >= 4.0.0"
 ]
 
 [project.urls]
 Homepage = "https://github.com/pmodwrc/fits2db"
 Issues = "https://github.com/pmodwrc/fits2db/issues"
+
+[project.scripts]
+fits2db = "fits2db.cli.cli:cli"
 
 [tool.setuptools.packages.find]
 where = ["."]

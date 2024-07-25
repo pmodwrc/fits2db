@@ -50,8 +50,8 @@ class DatabaseConfig(BaseModel):
 
 class FitsConfig(BaseModel):
     """Fits files configuraion."""
-
-    name: str
+    paths: list
+    tables: dict
 
 
 class ConfigFileValidator(BaseModel):

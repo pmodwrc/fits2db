@@ -83,10 +83,12 @@ def test_valid_application_config():
         token=None,
         port=3306,
     )
-    fits_config = FitsConfig(name="example_fits")
+    paths = [r"tests\unit\data\test.fits",r"tests\unit\data"]
+    tables = {}
+    fits_config = FitsConfig(paths=paths, tables=tables)
     app_config = ApplicationConfig(database=db_config, fits_files=fits_config)
     assert app_config.database.host == "localhost"
-    assert app_config.fits_files.name == "example_fits"
+    assert app_config.fits_files.paths == [r"tests\unit\data\test.fits",r"tests\unit\data"]
 
 
 def test_invalid_application_config():

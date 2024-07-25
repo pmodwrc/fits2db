@@ -13,8 +13,8 @@ from pathlib import Path
 
 counter = count()
 
-
-class FitsTable(TypedDict):
+@dataclass
+class FitsTable:
     name: str
     meta: pd.DataFrame
     data: pd.DataFrame
