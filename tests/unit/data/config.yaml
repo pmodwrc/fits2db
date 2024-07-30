@@ -1,17 +1,18 @@
 database:
   type: mysql
   host: localhost
-  user: kd
-  password: pfd
+  user: user
+  password: userpassword
+  db_name: fitsdata
   token:
-  port: 3006
-
+  port: 3306
 
 fits_files:
   paths:
-    - tests\unit\data\test.fits
+    - fits2db
+    # - tests\unit\data\test.fits
     - tests\unit\data
-    - \\ad.pmodwrc.ch\Institute\Projects\FY-3E\JOIM\16_Flight_Data\LEVEL_1
+    #- \\ad.pmodwrc.ch\Institute\Projects\FY-3E\JOIM\16_Flight_Data\LEVEL_1
   tables:
     names:
       - HOUSEKEEPING

@@ -5,10 +5,23 @@ from ..config import get_configs
 import os
 from pathlib import Path
 from tqdm import tqdm
+from hashlib import sha256
 import pandas as pd
+from ..adapters import DBWriter
+import logging
 
+# Use the configured logger
+log = logging.getLogger('fits2db')
 
-def get_all_fits(paths: list):
+def get_all_fits(paths: list)->list:
+    """Searches recursive throught all folders of given list of paths for 
+    fits files and gives them back.
+    Args:
+        paths (list): A list of paths to search recursivly for fits files
+
+    Returns:
+        list: Returns list of absolute paths of all fits files
+    """
     all_fits_files = []
     for path in paths:
         if os.path.isdir(path):
@@ -42,10 +55,18 @@ class Fits2db:
     def __init__(self, config_path):
         self.config_path = Path(config_path)
         self.configs = get_configs(config_path)
-        self.fits_file_paths = self.get_files()
+        self.fits_file_paths = self.get_file_names()
 
-    def get_files(self):
+    def get_file_names(self) -> list:
+        """Return list of all absolute filepaths found from sourced
+        given in config file
+
+        Returns:
+            list: List of absolute paths
+        """
         paths = self.configs["fits_files"]["paths"]
+        log.debug(f"paths {paths}")
+        log.info("run function")
         return list(dict.fromkeys(get_all_fits(paths)))
 
     def get_table_names(self):
@@ -58,7 +79,7 @@ class Fits2db:
                 self.all_table_names.append(file.table_names)
                 self.file_table_dict[path] = file.table_names
             except ValueError as err:
-                print(err)
+                log.error(err)
 
         self.all_table_names = flatten_and_deduplicate(self.all_table_names)
         return self.all_table_names, self.file_table_dict
@@ -83,3 +104,27 @@ class Fits2db:
                 df.to_excel(full_file_path, index=True)
 
         return df
+
+    def sha256sum(filename, bufsize=128 * 1024):
+        h = sha256()
+        buffer = bytearray(bufsize)
+        # using a memoryview so that we can slice the buffer without copying it
+        buffer_view = memoryview(buffer)
+        with open(filename, "rb", buffering=0) as f:
+            while True:
+                n = f.readinto(buffer_view)
+                if not n:
+                    break
+                h.update(buffer_view[:n])
+        return h.hexdigest()
+
+    def upsert_to_db(self):
+        for path in tqdm(self.fits_file_paths):
+            path = Path(path)
+            try:
+                file = FitsFile(path)
+                writer = DBWriter(self.configs, file)
+                writer.upsert()
+
+            except ValueError as err:
+                log.error(err)

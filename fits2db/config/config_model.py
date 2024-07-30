@@ -20,6 +20,7 @@ class DatabaseConfig(BaseModel):
     password: Optional[StrictStr] = None
     token: Optional[StrictStr] = None
     port: Optional[int] = None
+    db_name: Optional[StrictStr] = None
 
     @model_validator(mode="after")
     def validate_database(self) -> Self:

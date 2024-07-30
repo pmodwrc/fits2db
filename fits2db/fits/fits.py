@@ -11,6 +11,7 @@ from typing import TypedDict, List
 from pathlib import Path
 
 
+
 counter = count()
 
 @dataclass
@@ -30,6 +31,7 @@ class FitsFile:
     file_size: int = field(init=False)
     hdul: fits.HDUList = field(init=False)
     table_names: List = field(init=False)
+    config: dict = field(init=False)
 
     def __post_init__(self):
         self.check_path()
@@ -104,3 +106,6 @@ class FitsFile:
         return pd.DataFrame(
             list(hdu.header.items()), columns=["Keyword", "Value"]
         )
+    
+
+
