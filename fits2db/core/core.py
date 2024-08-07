@@ -5,13 +5,14 @@ from ..config import get_configs
 import os
 from pathlib import Path
 from tqdm import tqdm
-from hashlib import sha256
 import pandas as pd
 from ..adapters import DBWriter
 import logging
 
+
 # Use the configured logger
 log = logging.getLogger('fits2db')
+
 
 def get_all_fits(paths: list)->list:
     """Searches recursive throught all folders of given list of paths for 
@@ -105,20 +106,13 @@ class Fits2db:
 
         return df
 
-    def sha256sum(filename, bufsize=128 * 1024):
-        h = sha256()
-        buffer = bytearray(bufsize)
-        # using a memoryview so that we can slice the buffer without copying it
-        buffer_view = memoryview(buffer)
-        with open(filename, "rb", buffering=0) as f:
-            while True:
-                n = f.readinto(buffer_view)
-                if not n:
-                    break
-                h.update(buffer_view[:n])
-        return h.hexdigest()
+
 
     def upsert_to_db(self):
+        log.debug("Start upsert to db")
+        writer = DBWriter(self.configs)
+        writer.clean_db()
+        log.debug("Clean db success start uploading files")
         for path in tqdm(self.fits_file_paths):
             path = Path(path)
             try:
@@ -127,4 +121,4 @@ class Fits2db:
                 writer.upsert()
 
             except ValueError as err:
-                log.error(err)
+                log.error(f"\n {err}")

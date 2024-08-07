@@ -4,9 +4,9 @@ from dataclasses import dataclass, field
 from itertools import count
 from datetime import datetime
 from astropy.io import fits
-import numpy as np
 import pandas as pd
 import os
+import time
 from typing import TypedDict, List
 from pathlib import Path
 
@@ -37,6 +37,8 @@ class FitsFile:
         self.check_path()
         self.load_file()
         self.get_table_names()
+        self.mtime = time.ctime(os.path.getmtime(self.absolute_path))
+        self.mdate = datetime.fromtimestamp(os.path.getmtime(self.absolute_path))
 
     def check_path(self):
         if not self.file_path.exists():
@@ -63,7 +65,7 @@ class FitsFile:
     def get_table(self, name: str) -> FitsTable:
         """Access a specific table by index without loading all tables into memory."""
         if name not in self.table_names:
-            raise KeyError(f"Key {name} is a table in HDUL.")
+            raise KeyError(f"\n Key {name} is not a table in HDUL. \n in file {self.absolute_path}")
         hdu = self.hdul[name]
         data = self.extract_data(hdu)
         meta = self.extract_meta(hdu)

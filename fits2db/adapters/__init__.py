@@ -9,7 +9,7 @@ from .mysql import MySQL
 log = logging.getLogger('fits2db')
 
 class DBWriter:
-    def __init__(self, config: ConfigType, file: FitsFile):
+    def __init__(self, config: ConfigType, file: FitsFile=None):
         """
         Initializes the DBWriter class.
 
@@ -35,8 +35,11 @@ class DBWriter:
         if self.db_type and self.db_type.lower() == 'mysql':
             log.info("MySQL loader created.")
             return MySQL(self.config, self.file)
+
         log.debug("No loader created. Database type is not MySQL.")
         return None
+        
+        
 
     def _load_db(self) -> Optional[MySQL]:
         """
@@ -60,6 +63,21 @@ class DBWriter:
         except Exception as e:
             log.error(f"Unexpected error while loading database: {e}")
             return None
+        
+    def clean_db(self) -> None:
+        """
+        Deletes all fis2db created tables
+        """
+        log.debug("Starting db cleaning operation.")
+        try:
+            if self.loader:
+                self.loader.clean_db()
+                log.info("DB clean operation completed successfully.")
+            else:
+                log.error("Loader is not initialized.")
+        except Exception as e:
+            log.error(f"Error during upsert operation: {e}")
+
     
     def upsert(self) -> None:
         """
@@ -68,7 +86,7 @@ class DBWriter:
         log.debug("Starting upsert operation.")
         try:
             if self.loader:
-                self.loader.upsert_data()
+                self.loader.upsert_file()
                 log.info("Upsert operation completed successfully.")
             else:
                 log.error("Loader is not initialized.")
@@ -82,8 +100,10 @@ class DBWriter:
         log.debug("Starting update operation.")
         try:
             if self.loader:
-                self.loader.update_data()
+                self.loader.upsert_file()
                 log.info("Update operation completed successfully.")
+                self.loader.close_connection()
+                log.info("Connection closed")
             else:
                 log.error("Loader is not initialized.")
         except Exception as e:

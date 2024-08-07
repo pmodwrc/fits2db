@@ -49,10 +49,20 @@ class DatabaseConfig(BaseModel):
         return self
 
 
+class TableConfig(BaseModel):
+    """Table configuration."""
+
+    name: StrictStr
+    ingest_all_columns: bool
+    description: Optional[StrictStr] = None
+    columns: Optional[list] = None
+
+
 class FitsConfig(BaseModel):
     """Fits files configuraion."""
+
     paths: list
-    tables: dict
+    tables: list[TableConfig]
 
 
 class ConfigFileValidator(BaseModel):

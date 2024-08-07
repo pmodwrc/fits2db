@@ -12,6 +12,12 @@ from .utils import set_verbosity
     ??? tips
         - Check files before loading them into the database to have fewer worries once loaded.
         - You can also set a fail flag to fail the ingestion if some columns or data points are missing.
+    
+    ???+ example "Example Usage"
+
+        ```cmd
+        fits2db upsert path/to/your/config.yaml
+        ```
     """
 )
 @click.option('-v', '--verbosity', count=True, callback=set_verbosity, expose_value=False, is_eager=True,

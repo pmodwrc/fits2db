@@ -8,7 +8,10 @@ import os
 from jinja2 import Environment, FileSystemLoader
 
 from .config_model import ConfigFileValidator, ApplicationConfig, ConfigType
+import logging
 
+
+log = logging.getLogger('fits2db')
 
 def get_configs(path: Union[str, os.PathLike]) -> ConfigType:
     """Loads config file from given path
@@ -24,13 +27,13 @@ def get_configs(path: Union[str, os.PathLike]) -> ConfigType:
         try:
             config_data = yaml.safe_load(file)
         except yaml.YAMLError as err:
-            print("YAML loading error:", err)
+            log.error("YAML loading error:", err)
             return {}
 
     try:
         data = ApplicationConfig(**config_data).model_dump()
     except (TypeError, ValueError) as err:
-        print("Config file validation error:", err)
+        log.error("Config file validation error:", err)
         return {}
 
     return data
