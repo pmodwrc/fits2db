@@ -11,6 +11,21 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_ROOT_PASSWORD: password
+          MYSQL_DATABASE: test_db
+          MYSQL_USER: user
+          MYSQL_PASSWORD: password
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
 
     strategy:
       matrix:
@@ -32,6 +47,13 @@ jobs:
     - name: Install package
       run: |
         pip install .
+      
+    - name: Wait for MySQL
+      run: |
+        until nc -z 127.0.0.1 3306; do
+          echo "waiting for MySQL..."
+          sleep 1
+        done
 
     - name: Run tests with coverage
       run: |
