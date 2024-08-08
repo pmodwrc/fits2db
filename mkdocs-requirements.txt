@@ -3,4 +3,5 @@ mkdocs-material
 mkdocs-git-revision-date-localized-plugin
 mkdocs-git-authors-plugin
 mkdocs-click
+mkdocs-glightbox
 mkdocstrings[python]

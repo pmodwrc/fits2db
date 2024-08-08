@@ -3,17 +3,17 @@ site_name: fits2db
 nav:
   - index.md
   - User Guide: 
-    - Overview: installation-guide/overview.md
-    - Install pre built Image: installation-guide/installation.md
-    - Installation from Scratch: installation-guide/install-scratch.md
-    - Troubleshooting: installation-guide/trouble.md
-  - Building from source: 
-    - Livestream: how-to-guides/how-to-guide-livestream.md
-    - Setting focus: how-to-guides/how-to-guide-set-focus.md
+    - Overview: user-guide/overview.md
+    - About fits2db: user-guide/about-us.md
+    - Installation: user-guide/installation.md
+    - Examples: user-guide/examples.md
+    - Troubleshooting: user-guide/trouble.md
+  - Contribution guide: 
+    - Get source: contribution/contribution.md
   - API reference:
     - CLI reference: reference/reference.md
     - DB reference: reference/database.md
-  - Developement: hardware.md
+
   
 repo_url: https://github.com/pmodwrc/fits2db 
 repo_name: pmodwrc/fits2db
@@ -30,12 +30,12 @@ theme:
   palette: 
     - scheme: default
       toggle:
-        icon: material/brightness-7 
+        icon: material/lightbulb
         name: Switch to dark mode
 
     - scheme: slate
       toggle:
-        icon: material/brightness-4
+        icon: material/lightbulb-outline
         name: Switch to light mode
 
 
@@ -51,6 +51,7 @@ plugins:
   - git-revision-date-localized:
       type: date
   - git-authors
+  - glightbox
 
 
 
@@ -68,6 +69,7 @@ markdown_extensions:
   - pymdownx.arithmatex:
       generic: true
   - attr_list
+  - md_in_html
   - mkdocs-click
   - pymdownx.emoji:
       emoji_index: !!python/name:material.extensions.emoji.twemoji
