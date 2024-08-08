@@ -7,21 +7,10 @@ database:
   token:
   port: 3306
 
-#database:
-#  type: mysql
-#  host: db1.pmodwrc.ch
-#  user: dara_admin
-#  password: WcRXSS2SRz
-#  db_name: dara
-#  port: 3306
-
 fits_files:
   paths:
-    #- C:\Users\cedric.renda\Documents\fits2db\tests\unit\data\2021-07-07_L1a.fits
-    # - tests\unit\data\test.fits
-    #- tests\unit\data
-    - \\ad.pmodwrc.ch\Institute\Projects\FY-3E\JOIM\16_Flight_Data\LEVEL_1\2021\10
-
+    - tests\unit\data\2021-07-07_L1a.fits
+    
   tables:
     - name: HOUSEKEEPING
       target_table: RAW_HOUSEKEEPING
