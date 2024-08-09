@@ -1,6 +1,7 @@
 import click 
 from .utils import validate_output_filename
 from ..core import Fits2db, get_all_fits
+from ..config import generate_config
 
 @click.command()
 @click.argument("config_path", default=".", type=click.Path(exists=True))
@@ -71,6 +72,21 @@ def tables(config_path, matrix, csv, excel, filename):
 @click.command()
 @click.argument("config_path", default=".", type=click.Path(exists=True))
 @click.option(
+    "-r",
+    "--reset",
+    default=True,
+    is_flag=True,
+    help="Rebuild entire database and drops old tables. If false it will error if there is already a able with the same name",
+)
+def build(config_path, reset):
+    """Upsert all tables defnied in config.yml to databse"""
+    fits = Fits2db(config_path)
+    fits.build(reset)
+
+
+@click.command()
+@click.argument("config_path", default=".", type=click.Path(exists=True))
+@click.option(
     "-f",
     "--force",
     default=False,
@@ -81,3 +97,20 @@ def upsert(config_path, force):
     """Upsert all tables defnied in config.yml to databse"""
     fits = Fits2db(config_path)
     fits.upsert_to_db()
+
+
+@click.command()
+@click.argument("config_path", default=".", type=click.Path(exists=False))
+def init(config_path):
+    """Creates an example config file for you to change
+    
+    \b
+    CONFIG_PATH     This argument can be a path to a folder or file. 
+                    If you pass a file make sure to have the ending
+                    ".yml" or ".yaml" to get an valid config file
+    
+    """
+    if generate_config(config_path):
+        click.echo("File generated sucessfull")
+    else:
+        click.echo(click.style('Failed to generate file', blink=True, bold=True))

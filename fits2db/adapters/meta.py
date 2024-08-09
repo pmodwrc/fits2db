@@ -1,4 +1,4 @@
-"""This file manges the table structure and upload structure to upload data 
+"""Here are the Metadata table descriptions:
 
 
 ```mermaid

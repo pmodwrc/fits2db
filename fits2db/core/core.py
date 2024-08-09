@@ -53,7 +53,7 @@ def flatten_and_deduplicate(input_list):
 
 
 class Fits2db:
-    def __init__(self, config_path):
+    def __init__(self, config_path:str):
         self.config_path = Path(config_path)
         self.configs = get_configs(config_path)
         self.fits_file_paths = self.get_file_names()
@@ -106,6 +106,22 @@ class Fits2db:
 
         return df
 
+
+    def build(self, reset:bool=True):
+        log.debug(f"Start building db with reset = {reset}")
+        writer = DBWriter(self.configs)
+        if reset:
+            writer.clean_db()
+            log.debug("Clean db success start uploading files")
+        for path in tqdm(self.fits_file_paths):
+            path = Path(path)
+            try:
+                file = FitsFile(path)
+                writer = DBWriter(self.configs, file)
+                writer.upsert()
+
+            except ValueError as err:
+                log.error(f"\n {err}")
 
 
     def upsert_to_db(self):

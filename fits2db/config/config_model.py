@@ -53,7 +53,7 @@ class TableConfig(BaseModel):
     """Table configuration."""
 
     name: StrictStr
-    ingest_all_columns: bool
+    ingest_all_columns: Optional[bool] = True
     description: Optional[StrictStr] = None
     columns: Optional[list] = None
 
