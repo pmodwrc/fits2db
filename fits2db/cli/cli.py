@@ -1,5 +1,5 @@
 import click
-from .helper_func import tables, files, upsert, init
+from .helper_func import tables, files, build, init, update
 from .utils import set_verbosity
 
 @click.version_option("0.0.1b", "--version")
@@ -28,8 +28,9 @@ def cli(ctx):
 
 cli.add_command(files)
 cli.add_command(tables)
-cli.add_command(upsert)
+cli.add_command(build)
 cli.add_command(init)
+cli.add_command(update)
 
 if __name__ == "__main__":
     cli()

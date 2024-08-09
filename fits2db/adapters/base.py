@@ -86,6 +86,15 @@ class BaseLoader(ABC):
         log.info(f"Tables in DB:{self.db_table_names}")
         self.drop_tables()
         self.drop_meta_tables()
+    
+    def get_fits2db_meta(self)->pd.DataFrame:
+        try:
+            df = pd.read_sql_table("FITS2DB_META", con=self.engine)
+            return df
+        except Exception as err:
+            log.error(err)
+            raise 
+
 
     def upsert_file(self):
         self.session = self.db_session()

@@ -8,6 +8,7 @@ from tqdm import tqdm
 import pandas as pd
 from ..adapters import DBWriter
 import logging
+from datetime import datetime
 
 
 # Use the configured logger
@@ -69,6 +70,22 @@ class Fits2db:
         log.debug(f"paths {paths}")
         log.info("run function")
         return list(dict.fromkeys(get_all_fits(paths)))
+    
+    def get_file_infos(self) -> pd.DataFrame:
+
+        meta = []
+        for path in self.fits_file_paths:
+            path = Path(path)
+            absolute_path = path.resolve()
+            file_meta = {
+                "filename": path.name,
+                "filepath":absolute_path.as_posix(),
+                "last_file_mutation":datetime.fromtimestamp(os.path.getmtime(absolute_path))}
+            meta.append(file_meta)
+        df = pd.DataFrame(meta)
+        log.debug(df)
+        return df
+        
 
     def get_table_names(self):
         self.all_table_names = []
@@ -114,6 +131,35 @@ class Fits2db:
             writer.clean_db()
             log.debug("Clean db success start uploading files")
         for path in tqdm(self.fits_file_paths):
+            path = Path(path)
+            try:
+                file = FitsFile(path)
+                writer = DBWriter(self.configs, file)
+                writer.upsert()
+
+            except ValueError as err:
+                log.error(f"\n {err}")
+
+    def update_db(self):
+        file_infos = self.get_file_infos()
+        log.info(file_infos)
+        writer = DBWriter(self.configs)
+        db_file_infos = writer.get_db_file_infos()
+        log.info(db_file_infos)
+        merged_df = pd.merge(file_infos, db_file_infos, on=['filename', 'filepath'], how='left', suffixes=('_file', '_db'))
+
+
+        filtered_df = merged_df[
+            (merged_df['last_file_mutation_file'] > merged_df['last_file_mutation_db']) | 
+            merged_df['last_file_mutation_db'].isna()
+        ]
+
+        result_df = filtered_df[['filename', 'filepath', 'last_file_mutation_file']].rename(
+            columns={'last_file_mutation_file': 'last_file_mutation'}
+        )
+        log.info(result_df)
+        fits_file_paths = result_df["filepath"].to_list()
+        for path in tqdm(fits_file_paths):
             path = Path(path)
             try:
                 file = FitsFile(path)

@@ -11,6 +11,7 @@ fits_files:
   paths:
     - tests\unit\data\2021-07-07_L1a.fits
     - tests\unit\data\2021-07-08_L1a.fits
+    - tests\unit\data\2021-07-09_L1a.fits
 
 
   tables:

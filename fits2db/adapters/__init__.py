@@ -1,5 +1,6 @@
 import logging
 from typing import Optional
+from pandas import DataFrame
 from ..config.config_model import ConfigType
 from ..fits import FitsFile
 from .mysql import MySQL
@@ -77,6 +78,22 @@ class DBWriter:
                 log.error("Loader is not initialized.")
         except Exception as e:
             log.error(f"Error during upsert operation: {e}")
+
+    def get_db_file_infos(self)-> DataFrame:
+        """
+        Gets all file infos from FITS2DB_META Table
+        """
+        log.debug("Starting db cleaning operation.")
+        try:
+            if self.loader:
+                df = self.loader.get_fits2db_meta()
+                log.info("FITS2DB_META loaded")
+                return df
+            else:
+                log.error("Loader is not initialized.")
+        except Exception as e:
+            log.error(f"Error during upsert operation: {e}")
+
 
     
     def upsert(self) -> None:

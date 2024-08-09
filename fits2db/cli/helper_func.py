@@ -83,6 +83,13 @@ def build(config_path, reset):
     fits = Fits2db(config_path)
     fits.build(reset)
 
+@click.command()
+@click.argument("config_path", default=".", type=click.Path(exists=True))
+def update(config_path):
+    """Upsert all tables defnied in config.yml to databse"""
+    fits = Fits2db(config_path)
+    fits.update_db()
+
 
 @click.command()
 @click.argument("config_path", default=".", type=click.Path(exists=True))
