@@ -18,8 +18,19 @@ This is a cli tool to extract table data from a fits file and write it down in a
 
 | Database   |      Supported      |
 |----------|:-------------:|
-| MySql|  In Progress |
-| DuckDB | In validation |
+| MySql|  YES |
+| DuckDB | In progress |
+| Postgres |  under validation |
+
+## Installation 
+For installation you can use pip
+```bash 
+pip install fits2db
+```
+check if you got the right version with 
+```bash 
+fits2db --version
+```
 
 
 

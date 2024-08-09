@@ -85,4 +85,4 @@ fits2db is an open-source project licensed under the MIT License. Contributions 
 - Create a new branch for your feature or bugfix.
 - Submit a pull request with a detailed description of your changes.
 
-For more details, see the [contribution guide](/contribution/contribution).
+For more details, see the [contribution guide](../contribution/contribution.md).

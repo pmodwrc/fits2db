@@ -6,7 +6,7 @@ nav:
     - Overview: user-guide/overview.md
     - About fits2db: user-guide/about-us.md
     - Installation: user-guide/installation.md
-    - Examples: user-guide/examples.md
+    - Usage: user-guide/usage.md
     - Troubleshooting: user-guide/trouble.md
   - Contribution guide: 
     - Get source: contribution/contribution.md
@@ -24,6 +24,10 @@ theme:
     - content.code.copy
     - navigation.tabs
     - navigation.indexes
+    - navigation.prune
+    - toc.follow
+    - toc.integrate
+    - navigation.top
   icon:
     repo: fontawesome/brands/git-alt
   logo: layout/images/logo.png

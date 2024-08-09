@@ -4,11 +4,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fits2db"
-version = "0.0.1b1"
+version = "0.0.2b"
 authors = [
   { name="Cédric Renda", email="cedric.renda@hotmail.com" },
 ]
-description = "A small cli tool to load fits files into a sql database"
+description = "A cli tool to load and manage tables from fits files into a sql database"
 readme = "README.md"
 requires-python = ">=3.9"
 classifiers = [
@@ -55,9 +55,7 @@ fits2db = "fits2db.cli.cli:cli"
 where = ["."]
 
 [tool.setuptools.package-data]
-mypkg = ["*.txt", "*.j2"]
-
-
+"*" = ["*.txt", "*.j2"]
 
 
 [tool.ruff]

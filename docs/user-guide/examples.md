@@ -1,1 +1,0 @@
-# fits2db examples

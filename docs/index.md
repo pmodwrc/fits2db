@@ -11,10 +11,10 @@
 
     ---
 
-    Install [`fits2db`](#) with [`pip`](/user-guide/installation) and get up
+    Install [`fits2db`](#) with [`pip`](user-guide/installation.md) and get up
     and running in minutes
 
-    [:octicons-arrow-right-24: Getting started](/user-guide/overview)
+    [:octicons-arrow-right-24: Getting started](user-guide/overview.md)
 
 -   :material-account-hard-hat-outline:{ .lg .middle } __Contribute__
 
@@ -22,7 +22,7 @@
 
     Are you missing something or found a bug?
 
-    [:octicons-arrow-right-24: Contribute](/contribution/contribution)
+    [:octicons-arrow-right-24: Contribute](contribution/contribution.md)
 
 -   :material-abacus:{ .lg .middle } __Focus on your data__
 
@@ -30,7 +30,7 @@
 
     You're tired of managing hundrets of fits files on your computer? Read about why this project is for you!
 
-    [:octicons-arrow-right-24: About this project](/user-guide/about-us)
+    [:octicons-arrow-right-24: About this project](user-guide/about-us.md)
 
 -   :material-scale-balance:{ .lg .middle } __Open Source, Apache License 2.0__
 
