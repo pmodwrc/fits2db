@@ -4,6 +4,8 @@ from sqlalchemy import create_engine, Column, Integer, String, text
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
 
+from fits2db import Fits2db
+
 DATABASE_URL = os.environ.get('DATABASE_URL', 'mysql+mysqlconnector://user:password@localhost/test_db')
 
 Base = declarative_base()
@@ -13,6 +15,7 @@ class SampleTable(Base):
     __tablename__ = 'sample_table'
     id = Column(Integer, primary_key=True, autoincrement=True)
     data = Column(String(255), nullable=False)
+
 
 @pytest.fixture(scope='module')
 def db_engine():
@@ -48,3 +51,10 @@ def test_insert_data(db_session):
     # Clean up the test data
     db_session.delete(result)
     db_session.commit()
+
+def test_build_fits2db():
+    config_url = "tests/unit/data/config.yaml"
+    fits = Fits2db(config_url)
+    fits.upsert_to_db()
+
+    

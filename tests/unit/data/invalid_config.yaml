@@ -1,0 +1,17 @@
+database:
+  type: 12
+  host: localhost
+  user: user
+  password: password
+  db_name: test_db
+  token:
+  port: test
+
+fits_files:
+  paths:
+    - 123
+
+
+
+  
+

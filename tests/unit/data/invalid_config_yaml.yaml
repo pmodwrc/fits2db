@@ -1,0 +1,16 @@
+database:
+  type: mysql
+  host: localhost
+  port: 3306
+  user: root
+  password: secret
+  # Missing closing bracket for the list
+  tables: [
+    name: users
+    columns:
+      - id
+      - name
+      - email
+
+fits_files:
+  paths:
