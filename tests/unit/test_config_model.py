@@ -84,8 +84,10 @@ def test_valid_application_config():
         port=3306,
     )
     paths = [r"tests\unit\data\test.fits", r"tests\unit\data"]
-    tables = [{"name":"test","ingest_all_columns":True},
-              {"name":"test2","ingest_all_columns":False}]
+    tables = [
+        {"name": "test", "ingest_all_columns": True},
+        {"name": "test2", "ingest_all_columns": False},
+    ]
     fits_config = FitsConfig(paths=paths, tables=tables)
     app_config = ApplicationConfig(database=db_config, fits_files=fits_config)
     assert app_config.database.host == "localhost"
@@ -93,8 +95,12 @@ def test_valid_application_config():
         r"tests\unit\data\test.fits",
         r"tests\unit\data",
     ]
-    assert app_config.fits_files.tables[0].model_dump() == {'columns':None,'description':None, 'name': 'test', 'ingest_all_columns': True}
-
+    assert app_config.fits_files.tables[0].model_dump() == {
+        "columns": None,
+        "description": None,
+        "name": "test",
+        "ingest_all_columns": True,
+    }
 
 
 def test_invalid_application_config():

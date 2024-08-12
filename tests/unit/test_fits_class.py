@@ -2,11 +2,12 @@ import pytest
 from pathlib import Path
 from fits2db.fits import FitsFile
 
-DATA_DIR = Path(__file__).parent / 'data' 
+DATA_DIR = Path(__file__).parent / "data"
 
 
 def valid_fits_path(file):
     return DATA_DIR / file
+
 
 def test_valid_fits_file():
     path = valid_fits_path("2021-07-07_L1a.fits")
