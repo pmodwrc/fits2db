@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fits2db"
-version = "0.0.2b"
+version = "0.0.3"
 authors = [
   { name="Cédric Renda", email="cedric.renda@hotmail.com" },
 ]
@@ -15,7 +15,7 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
-    "Development Status :: 1 - Planning",
+    "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "Intended Audience :: End Users/Desktop",
     "Intended Audience :: Science/Research",
@@ -45,7 +45,8 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/pmodwrc/fits2db"
+Repository = "https://github.com/pmodwrc/fits2db"
+Documentation = "https://pmodwrc.github.io/fits2db/"
 Issues = "https://github.com/pmodwrc/fits2db/issues"
 
 [project.scripts]
@@ -62,6 +63,8 @@ where = ["."]
 line-length = 79
 indent-width = 4
 target-version = "py39"
+
+
 
 [tool.ruff.format]
 quote-style = "double"

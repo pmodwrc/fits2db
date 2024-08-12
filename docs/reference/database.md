@@ -6,6 +6,3 @@ When we upload data to the a Database the main idea is to have a mantainable str
 `FITS2DB_META` contains the the meta data of each file that is loaded into the database.
  
 ::: fits2db.adapters.meta
-
-## Base connection functions
-::: fits2db.adapters.base

@@ -18,7 +18,7 @@ This is a cli tool to extract table data from a fits file and write it down in a
 
 | Database   |      Supported      |
 |----------|:-------------:|
-| MySql|  YES |
+| MySql & MariaDB|  YES |
 | DuckDB | In progress |
 | Postgres |  under validation |
 
