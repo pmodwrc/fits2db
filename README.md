@@ -31,6 +31,49 @@ check if you got the right version with
 ```bash 
 fits2db --version
 ```
+To init a config file run 
+```bash 
+fits2db init
+```
+In the `config.yml` file you now can change the variables needed. 
+
+Fill in the database credentials:
+```yaml
+database:
+  type: mysql
+  host: localhost
+  user: user
+  password: password
+  db_name: test_db
+  port: 3306
+```
+and add some paths for your fits files
+
+```yaml
+fits_files:
+  paths:
+    - path/to_your_file/2021-07-07_L1a.fits
+    - path_to_your_folder
+tables:
+    - name: HOUSEKEEPING
+      target_table: RAW_HOUSEKEEPING # This will be the table_name in the db
+    - name: OTHER_TABLE # If no table name given it will use the orignal name
+```
+
+Build your database from config file 
+```bash 
+fits2db build <path_to_config_yaml>
+```
+This will create the following tables:
+| Table   |      Description      |
+|----------|:-------------:|
+| FITS2DB_META|  Contain meta information about loaded files |
+| FITS2DB_TABLE_META | Contains info about all loaded tables from the files |
+| HOUSEKEEPING |  Contains the data of your fits files tables HOUSEKEEPING  merged |
+| HOUSEKEEPING_META |  Contains the Column information from the fits files|
+| OTHER_TABLE |   Contains the data of your fits files tables HOUSEKEEPING  merged|
+| OTHER_TABLE_META |  Contains the Column information from the fits files|
+
 
 
 

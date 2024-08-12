@@ -36,15 +36,20 @@ database:
   db_name: test_db
   port: 3306
 ```
-and add some paths for your fis files
+and add some paths for your fits files
 
 ```yaml
 fits_files:
   paths:
     - path/to_your_file/2021-07-07_L1a.fits
     - path_to_your_folder
-
+tables:
+    - name: HOUSEKEEPING
+      target_table: RAW_HOUSEKEEPING # This will be the table_name in the db
+    - name: JTSIM_BROADCAST # If no table name given it will use the orignal name
 ```
+
+
 !!! note
     if a folder is given all fits files under this folder will be taken for upload.
 
@@ -75,4 +80,25 @@ this will get you a summary of all tables
     ```bash
     $ fits2db tables <path_to_config_file> -m --excel --filename path/your_filename.xlsx
     ```
-    
+
+## __Build db__
+
+Now upload the data into our data base we use the build command
+```bash
+$ fits2db build <path_to_config_file> 
+```
+this will upload all the fits tables into your data base and create the meta tables to keep track on changes of the files
+
+!!! warning
+    If you rerun the build command it acts as an reset. it will drop the tables and reupload all data to have a fresh start. This is only recommend to use when you lost track of some changes in the data you have done manually and you are not sure you corrupted the data.
+
+
+## __Update db__
+
+Once builded and you get new files or changes you can update the database. This command will check if there a new files in your defnied folders and upload them to the db. If the timestamp of your file changed to a newer date. Like when you changed a file it will also update this file to the newer version. This way the fits files and the db stay in sync. To update just run 
+
+```bash
+$ fits2db update <path_to_config_file> 
+```
+!!! note
+    If you add a new table in your config file the update command will check trough the older files too if this table is in this file and upload accordingly.

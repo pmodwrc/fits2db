@@ -43,16 +43,8 @@ Before using fits2db, you need to create a configuration yaml file. This file co
     tables: # The tables from the fitsfiles you want to upload
         - name: HOUSEKEEPING
         target_table: RAW_HOUSEKEEPING
-        ingest_all_columns: true
-        description: "Table containing user information"
-        columns:
-            - name: timestamp
-            type: timestamp
-            precision: us
-
         - name: JTSIM_BROADCAST
-        ingest_all_columns: true
-        description: "Table containing order information"
+
     ```
 ### Configuration Parameters
 
