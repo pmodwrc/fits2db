@@ -2,36 +2,41 @@ site_name: fits2db
 
 nav:
   - index.md
-  - User Guide: 
-    - Overview: user-guide/overview.md
-    - About fits2db: user-guide/about-us.md
-    - Installation: user-guide/installation.md
-    - Usage: user-guide/usage.md
-    - Troubleshooting: user-guide/trouble.md
-  - Contribution guide: 
-    - Get source: contribution/contribution.md
+  - User Guide:
+      - Overview: user-guide/overview.md
+      - About fits2db: user-guide/about-us.md
+      - Installation: user-guide/installation.md
+      - Usage: user-guide/usage.md
+      - Troubleshooting: user-guide/trouble.md
+  - Contribution guide:
+      - Overview: contribution/contribution.md
+      - Docs: contribution/docs.md
+      - Code: contribution/code.md
+      - Tests: contribution/tests.md
+      - Environment setup: contribution/setup.md
   - API reference:
-    - CLI reference: reference/reference.md
-    - DB reference: reference/database.md
+      - CLI reference: reference/reference.md
+      - DB reference: reference/database.md
 
-  
-repo_url: https://github.com/pmodwrc/fits2db 
+repo_url: https://github.com/pmodwrc/fits2db
 repo_name: pmodwrc/fits2db
 
 theme:
   name: material
   features:
     - content.code.copy
+    - content.tabs.link
     - navigation.tabs
     - navigation.indexes
     - navigation.prune
     - toc.follow
     - toc.integrate
     - navigation.top
+    - navigation.footer
   icon:
     repo: fontawesome/brands/git-alt
   logo: layout/images/logo.png
-  palette: 
+  palette:
     - scheme: default
       toggle:
         icon: material/lightbulb
@@ -41,8 +46,11 @@ theme:
       toggle:
         icon: material/lightbulb-outline
         name: Switch to light mode
-
-
+extra:
+  generator: false
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/gosow9
 
 plugins:
   - mkdocstrings:
@@ -57,8 +65,6 @@ plugins:
   - git-authors
   - glightbox
 
-
-
 markdown_extensions:
   - pymdownx.highlight:
       anchor_linenums: true
@@ -70,6 +76,9 @@ markdown_extensions:
   - admonition
   - pymdownx.details
   - pymdownx.superfences
+  - footnotes
+  - pymdownx.tabbed:
+      alternate_style: true
   - pymdownx.arithmatex:
       generic: true
   - attr_list
@@ -83,7 +92,6 @@ markdown_extensions:
         - name: mermaid
           class: mermaid
           format: !!python/name:pymdownx.superfences.fence_code_format
-
 
 extra_javascript:
   - javascripts/mathjax.js
