@@ -2,7 +2,10 @@ import click
 from typing import Optional
 from ..log import configure_logger, LOG_LEVELS
 
-def validate_output_filename(ctx: click.Context, param: Optional[click.Parameter], value: str) -> str:
+
+def validate_output_filename(
+    ctx: click.Context, param: Optional[click.Parameter], value: str
+) -> str:
     """
     Validate the output filename based on the selected file format options.
 
@@ -18,13 +21,9 @@ def validate_output_filename(ctx: click.Context, param: Optional[click.Parameter
         str: The validated output filename.
     """
     if ctx.params.get("csv") and not value.endswith(".csv"):
-        raise click.BadParameter(
-            "CSV filename must have a .csv extension."
-        )
+        raise click.BadParameter("CSV filename must have a .csv extension.")
     if ctx.params.get("excel") and not value.endswith(".xlsx"):
-        raise click.BadParameter(
-            "Excel filename must have a .xlsx extension."
-        )
+        raise click.BadParameter("Excel filename must have a .xlsx extension.")
     if ctx.params.get("csv") or ctx.params.get("excel"):
         if not value:
             raise click.BadParameter(
@@ -32,7 +31,10 @@ def validate_output_filename(ctx: click.Context, param: Optional[click.Parameter
             )
     return value
 
-def set_verbosity(ctx: click.Context, param: Optional[click.Parameter], value: int) -> int:
+
+def set_verbosity(
+    ctx: click.Context, param: Optional[click.Parameter], value: int
+) -> int:
     """
     Set verbosity of logs.
 
@@ -47,5 +49,5 @@ def set_verbosity(ctx: click.Context, param: Optional[click.Parameter], value: i
     levels = list(LOG_LEVELS.keys())
     level = levels[min(len(levels) - 1, value)]
     ctx.ensure_object(dict)
-    ctx.obj['logger'] = configure_logger(level)
+    ctx.obj["logger"] = configure_logger(level)
     return value

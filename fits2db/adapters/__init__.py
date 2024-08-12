@@ -1,16 +1,37 @@
+"""
+This module provides the DBWriter class, which manages database operations
+for FITS files using a configurable loader such as MySQL. It supports operations
+like upsert, update, and database cleaning.
+
+Classes:
+    DBWriter: Handles database operations for FITS files based on the provided configuration.
+"""
+
 import logging
 from typing import Optional
+
 from pandas import DataFrame
+
 from ..config.config_model import ConfigType
 from ..fits import FitsFile
 from .mysql import MySQL
 
-
 # Use the configured log
-log = logging.getLogger('fits2db')
+log = logging.getLogger("fits2db")
+
 
 class DBWriter:
-    def __init__(self, config: ConfigType, file: FitsFile=None):
+    """
+    Handles database operations for FITS files based on the provided configuration.
+
+    Attributes:
+        file (FitsFile): FITS file to be processed.
+        config (ConfigType): Configuration settings for the database.
+        db_type (Optional[str]): The type of database (e.g., "mysql").
+        loader (Optional[MySQL]): The database loader instance.
+    """
+
+    def __init__(self, config: ConfigType, file: FitsFile = None) -> None:
         """
         Initializes the DBWriter class.
 
@@ -30,17 +51,16 @@ class DBWriter:
         Returns the database loader based on the configuration.
 
         Returns:
-            Optional[MySQL]: An instance of the MySQL loader if the database type is MySQL, otherwise None.
+            Optional[MySQL]: An instance of the MySQL loader if the
+                    database type is MySQL, otherwise None.
         """
         log.debug("Getting database loader for type: %s", self.db_type)
-        if self.db_type and self.db_type.lower() == 'mysql':
+        if self.db_type and self.db_type.lower() == "mysql":
             log.info("MySQL loader created.")
             return MySQL(self.config, self.file)
 
         log.debug("No loader created. Database type is not MySQL.")
         return None
-        
-        
 
     def _load_db(self) -> Optional[MySQL]:
         """
@@ -59,15 +79,12 @@ class DBWriter:
                 log.warning("Loader initialization failed.")
             return loader
         except KeyError as e:
-            log.error(f"Configuration key error: {e}")
+            log.error("Configuration key error: %s", e)
             return None
-        except Exception as e:
-            log.error(f"Unexpected error while loading database: {e}")
-            return None
-        
+
     def clean_db(self) -> None:
         """
-        Deletes all fis2db created tables
+        Deletes all tables created by FITS2DB in the database.
         """
         log.debug("Starting db cleaning operation.")
         try:
@@ -79,9 +96,13 @@ class DBWriter:
         except Exception as e:
             log.error(f"Error during upsert operation: {e}")
 
-    def get_db_file_infos(self)-> DataFrame:
+    def get_db_file_infos(self) -> Optional[DataFrame]:
         """
-        Gets all file infos from FITS2DB_META Table
+        Retrieves file information from the FITS2DB_META table.
+
+        Returns:
+            Optional[DataFrame]: A DataFrame containing file information from
+                    the database, or None if an error occurs.
         """
         log.debug("Starting db cleaning operation.")
         try:
@@ -94,8 +115,6 @@ class DBWriter:
         except Exception as e:
             log.error(f"Error during upsert operation: {e}")
 
-
-    
     def upsert(self) -> None:
         """
         Inserts or updates data in the database.
@@ -112,12 +131,12 @@ class DBWriter:
 
     def update(self) -> None:
         """
-        Updates data in the database.
+        Updates data in the database and closes the connection.
         """
         log.debug("Starting update operation.")
         try:
             if self.loader:
-                self.loader.upsert_file()
+                self.loader.update_file()
                 log.info("Update operation completed successfully.")
                 self.loader.close_connection()
                 log.info("Connection closed")

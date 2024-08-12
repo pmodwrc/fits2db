@@ -14,9 +14,17 @@ nav:
       - Code: contribution/code.md
       - Tests: contribution/tests.md
       - Environment setup: contribution/setup.md
-  - API reference:
+  - Reference:
       - CLI reference: reference/reference.md
       - DB reference: reference/database.md
+      - API ADAPTERS.BASE: reference/adapters_base.md
+      - API ADAPTERS.META: reference/adapters_meta.md
+      - API ADAPTERS.MYSQL: reference/adapters_mysql.md
+      - API CLI: reference/cli.md
+      - API CONFIG: reference/config.md
+      - API CORE: reference/core.md
+      - API FITS: reference/fits.md
+      - API LOG: reference/log.md
 
 repo_url: https://github.com/pmodwrc/fits2db
 repo_name: pmodwrc/fits2db

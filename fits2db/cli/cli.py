@@ -2,6 +2,7 @@ import click
 from .helper_func import tables, files, build, init, update
 from .utils import set_verbosity
 
+
 @click.version_option("0.0.1b", "--version")
 @click.group(
     help="""
@@ -20,11 +21,19 @@ from .utils import set_verbosity
         ```
     """
 )
-@click.option('-v', '--verbosity', count=True, callback=set_verbosity, expose_value=False, is_eager=True,
-              help="Increase verbosity of the log output. Use -v for WARNING, -vv for INFO, -vvv for DEBUG.")
+@click.option(
+    "-v",
+    "--verbosity",
+    count=True,
+    callback=set_verbosity,
+    expose_value=False,
+    is_eager=True,
+    help="Increase verbosity of the log output. Use -v for WARNING, -vv for INFO, -vvv for DEBUG.",
+)
 @click.pass_context
 def cli(ctx):
-    ctx.obj['logger'].info("Logger configured with verbosity level.")
+    ctx.obj["logger"].info("Logger configured with verbosity level.")
+
 
 cli.add_command(files)
 cli.add_command(tables)

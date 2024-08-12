@@ -3,9 +3,14 @@ database:
   host: localhost
   user: db_user
   password: user_password
-  token: 
   port: 3006
 
-
 fits_files:
-  name: path_to_fits_file
+  paths:
+    - path/to/dir
+    - path/to/file.fits
+
+  tables:
+    - name: HOUSEKEEPING
+      target_table: RAW_HOUSEKEEPING
+    - name: OTHER_TABLE 
