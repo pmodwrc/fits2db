@@ -11,8 +11,8 @@ from typing import TypedDict, List
 from pathlib import Path
 
 
-
 counter = count()
+
 
 @dataclass
 class FitsTable:
@@ -38,7 +38,9 @@ class FitsFile:
         self.load_file()
         self.get_table_names()
         self.mtime = time.ctime(os.path.getmtime(self.absolute_path))
-        self.mdate = datetime.fromtimestamp(os.path.getmtime(self.absolute_path))
+        self.mdate = datetime.fromtimestamp(
+            os.path.getmtime(self.absolute_path)
+        )
 
     def check_path(self):
         if not self.file_path.exists():
@@ -65,13 +67,14 @@ class FitsFile:
     def get_table(self, name: str) -> FitsTable:
         """Access a specific table by index without loading all tables into memory."""
         if name not in self.table_names:
-            raise KeyError(f"\n Key {name} is not a table in HDUL. \n in file {self.absolute_path}")
+            raise KeyError(
+                f"\n Key {name} is not a table in HDUL. \n in file {self.absolute_path}"
+            )
         hdu = self.hdul[name]
         data = self.extract_data(hdu)
         meta = self.extract_meta(hdu)
         fits_table = FitsTable(name=name, data=data, meta=meta)
         return fits_table
-
 
     def get_table_names(self):
         """Return the names of all tables in the FITS file."""
@@ -108,6 +111,3 @@ class FitsFile:
         return pd.DataFrame(
             list(hdu.header.items()), columns=["Keyword", "Value"]
         )
-    
-
-

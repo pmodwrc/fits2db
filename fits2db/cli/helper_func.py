@@ -1,7 +1,8 @@
-import click 
+import click
 from .utils import validate_output_filename
 from ..core import Fits2db, get_all_fits
 from ..config import generate_config
+
 
 @click.command()
 @click.argument("config_path", default=".", type=click.Path(exists=True))
@@ -15,10 +16,10 @@ from ..config import generate_config
 def files(folder, config_path):
     """Prints all files from given config.yaml file"""
     try:
-        if folder:        
+        if folder:
             files = get_all_fits([config_path])
 
-        else: 
+        else:
             fits = Fits2db(config_path)
             files = fits.get_file_names()
         for f in files:
@@ -26,6 +27,7 @@ def files(folder, config_path):
         click.echo(f"Total of {len(files)} files")
     except Exception as err:
         click.echo(err)
+
 
 @click.command()
 @click.argument("config_path", default=".", type=click.Path(exists=True))
@@ -83,6 +85,7 @@ def build(config_path, reset):
     fits = Fits2db(config_path)
     fits.build(reset)
 
+
 @click.command()
 @click.argument("config_path", default=".", type=click.Path(exists=True))
 def update(config_path):
@@ -110,14 +113,16 @@ def upsert(config_path, force):
 @click.argument("config_path", default=".", type=click.Path(exists=False))
 def init(config_path):
     """Creates an example config file for you to change
-    
+
     \b
-    CONFIG_PATH     This argument can be a path to a folder or file. 
+    CONFIG_PATH     This argument can be a path to a folder or file.
                     If you pass a file make sure to have the ending
                     ".yml" or ".yaml" to get an valid config file
-    
+
     """
     if generate_config(config_path):
         click.echo("File generated sucessfull")
     else:
-        click.echo(click.style('Failed to generate file', blink=True, bold=True))
+        click.echo(
+            click.style("Failed to generate file", blink=True, bold=True)
+        )

@@ -11,7 +11,8 @@ from .config_model import ConfigFileValidator, ApplicationConfig, ConfigType
 import logging
 
 
-log = logging.getLogger('fits2db')
+log = logging.getLogger("fits2db")
+
 
 def get_configs(path: Union[str, os.PathLike]) -> ConfigType:
     """Loads config file from given path
@@ -57,7 +58,6 @@ def render_template(template_name: str, context: dict) -> str:
     return template.render(context)
 
 
-
 def generate_config(path: Union[str, os.PathLike]) -> bool:
     """Generate an example config file"""
     try:
@@ -70,16 +70,20 @@ def generate_config(path: Union[str, os.PathLike]) -> bool:
             if path.endswith(".yml") or path.endswith(".yaml"):
                 file_path = path
             else:
-                raise ValueError("The path must either be a directory or specify a file ending with '.yml'")
+                raise ValueError(
+                    "The path must either be a directory or specify a file ending with '.yml'"
+                )
 
-        config_content = render_template("config.yaml.j2", {"db_type": "mysql"})
-        
+        config_content = render_template(
+            "config.yaml.j2", {"db_type": "mysql"}
+        )
+
         with open(file_path, "w", encoding="utf-8") as f:
             f.write(config_content)
 
         log.info(f"Configuration successfully written to {file_path}")
-        return True 
+        return True
 
     except Exception as e:
         log.error(f"Failed to write configuration file: {e}")
-        return False 
+        return False
