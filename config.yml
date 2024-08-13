@@ -1,0 +1,61 @@
+database:
+  type: mysql
+  host: localhost
+  user: user
+  password: password
+  db_name: test_db
+  token:
+  port: 3306
+
+fits_files:
+  paths:
+    #- tests\unit\data\2021-07-07_L1a.fits
+    # - tests\unit\data\test.fits
+    #- tests\unit\data
+    - \\ad.pmodwrc.ch\Institute\Projects\FY-3E\JOIM\16_Flight_Data\LEVEL_1\2021
+
+  tables:
+    - name: HOUSEKEEPING
+      target_table: RAW_HOUSEKEEPING
+      ingest_all_columns: true
+      description: "Table containing user information"
+      columns:
+        - name: timestamp
+          type: timestamp
+          precision: us
+
+
+    - name: JTSIM_BROADCAST
+      ingest_all_columns: true
+      description: "Table containing order information"
+      columns:
+        - name: order_id
+          type: integer
+          primary_key: true
+          auto_increment: true
+          description: "Unique identifier for the order"
+        - name: user_id
+          type: integer
+          nullable: false
+          foreign_key:
+            table: users
+            column: id
+          description: "ID of the user who placed the order"
+        - name: order_date
+          type: datetime
+          nullable: false
+          default: "CURRENT_TIMESTAMP"
+          description: "Date and time when the order was placed"
+        - name: total_amount
+          type: decimal(10, 2)
+          nullable: false
+          description: "Total amount for the order"
+        - name: status
+          type: varchar(20)
+          nullable: false
+          default: "pending"
+          description: "Current status of the order"
+
+
+  
+

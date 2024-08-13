@@ -12,7 +12,7 @@ fits_files:
     - tests\unit\data\2021-07-07_L1a.fits
     - tests\unit\data\2021-07-08_L1a.fits
     - tests\unit\data\2021-07-09_L1a.fits
-
+    - tests\unit\data\2021-07-10_L1a.fits
 
   tables:
     - name: HOUSEKEEPING
@@ -23,15 +23,8 @@ fits_files:
           type: timestamp
           precision: us
 
-
     - name: JTSIM_BROADCAST
       description: "Table containing order information"
-    
+
     - name: INVALID_NAME
       description: "This Table does not exist"
-
-
-
-
-  
-
