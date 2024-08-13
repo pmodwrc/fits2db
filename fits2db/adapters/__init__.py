@@ -122,8 +122,10 @@ class DBWriter:
         log.debug("Starting upsert operation.")
         try:
             if self.loader:
-                self.loader.upsert_file()
+                self.loader.upload_file()
                 log.info("Upsert operation completed successfully.")
+                self.loader.close_connection()
+                log.info("Connection closed")
             else:
                 log.error("Loader is not initialized.")
         except Exception as e:

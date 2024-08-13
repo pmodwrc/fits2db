@@ -82,24 +82,14 @@ class Fits2DbMeta(Base):
         default=datetime.now(timezone.utc),
     )
     # Relationship to associate files with their tables
-    tables = relationship("Fits2DbTableMeta", back_populates="file_meta")
+    tables = relationship(
+        "Fits2DbTableMeta",
+        back_populates="file_meta",
+        cascade="all, delete-orphan",
+    )
 
 
 class Fits2DbTableMeta(Base):
-    """
-    SQLAlchemy ORM model representing the FITS2DB_TABLE_META table.
-
-    Attributes:
-        id (int): Primary key, auto-incremented.
-        file_meta_id (int): Foreign key referencing Fits2DbMeta.id.
-        tablename (str): Name of the table.
-        record_count (int): Number of records in the table.
-        column_count (int): Number of columns in the table.
-        file_meta (relationship): Relationship to the Fits2DbMeta object
-                associated with this table.
-
-    """
-
     __tablename__ = "FITS2DB_TABLE_META"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -108,5 +98,4 @@ class Fits2DbTableMeta(Base):
     record_count = Column(Integer)
     column_count = Column(Integer)
 
-    # Relationship to reference the file metadata
     file_meta = relationship("Fits2DbMeta", back_populates="tables")
