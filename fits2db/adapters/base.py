@@ -123,7 +123,9 @@ class BaseLoader(ABC):
         metadata.reflect(bind=self.engine)
         log.info(metadata.tables)
         try:
-            db_table_names = self.get_tables(session)
+            # db_table_names = self.get_tables(session)
+            # Bugfix that no tables were found
+            db_table_names = set(metadata.tables.keys())
             for table_name in db_table_names:
                 if table_name in metadata.tables:
                     metadata.tables[table_name].drop(self.engine)
@@ -170,7 +172,7 @@ class BaseLoader(ABC):
             pd.DataFrame: The DataFrame containing the FITS2DB_META table data.
         """
         try:
-            df = pd.read_sql_table("FITS2DB_META", con=self.engine)
+            df = pd.read_sql_table("fits2db_meta", con=self.engine)
             return df
         except Exception as err:
             log.error(err)
@@ -193,13 +195,13 @@ class BaseLoader(ABC):
                 try:
                     df = self.file.get_table(table_name)
                     df.data["FILE_META_ID"] = self.new_file.id
-                    df.data.columns = map(str.upper, df.data.columns)
-                    df.meta.columns = map(str.upper, df.meta.columns)
+                    df.data.columns = map(str.lower, df.data.columns) # change to lower
+                    df.meta.columns = map(str.lower, df.meta.columns) # change to lower
                     self.write_table_meta(
                         table_name, df.data, session, self.new_file.id
                     )
-                    self.upsert_data_table(table_name, df.data)
-                    self.update_table(table_name + "_META", df.meta)
+                    self.upsert_data_table(str.lower(table_name), df.data)
+                    self.update_table(str.lower(table_name) + "_meta", df.meta) # change to lower
                 except KeyError as err:
                     log.error(f"\n {err}")
 
@@ -229,7 +231,7 @@ class BaseLoader(ABC):
             metadata = MetaData()
             table = Table(tablename, metadata, autoload_with=self.engine)
             delete_stmt = table.delete().where(
-                table.c.FILE_META_ID == file_record.id
+                table.c.file_meta_id == file_record.id # change to lowercase
             )
             session.execute(delete_stmt)
             log.info(
@@ -278,8 +280,15 @@ class BaseLoader(ABC):
         """
         log.debug("Passed engine:")
         log.debug(self.engine)
+
+        log.debug('clean df')  # TODO Extract
+        space_cols = [col for col in df.columns if ' ' in col]
+        mapping = {col: col.replace(' ', '_') + '_2' for col in space_cols}
+        df = df.rename(columns=mapping)
+
+        df['timestamp'] = pd.to_datetime(df['timestamp']) # FIX TIMESTAMP setting
         try:
-            tmp_tbl = "TMP_" + table_name
+            tmp_tbl = "tmp_" + str.lower(table_name)  # change to lowercase
             with self.engine.connect() as conn:
                 df.to_sql(
                     name=tmp_tbl,
@@ -385,6 +394,7 @@ class BaseLoader(ABC):
         """
         source_table_details = self._fetch_column_details(tmp_table)
         target_table_details = self._fetch_column_details(original_table)
+        source_table_details = {k.lower(): v for k, v in source_table_details.items()}
         self._add_missing_columns(
             source_table_details, original_table, target_table_details
         )
@@ -427,7 +437,7 @@ class BaseLoader(ABC):
             Dict[str, Any]: A dictionary mapping column names to their types.
         """
         meta = MetaData()
-        table = Table(table_name, meta, autoload_with=self.engine)
+        table = Table(str.lower(table_name), meta, autoload_with=self.engine)
         return {column.name: column.type for column in table.columns}
 
     def _add_missing_columns(
@@ -444,6 +454,8 @@ class BaseLoader(ABC):
             target_table (str): The name of the target table.
             target_table_details (Dict[str, Any]): Details of the target table's columns.
         """
+        source_table_details = {k.lower(): v for k, v in source_table_details.items()}
+        target_table = str.lower(target_table)
         with self.engine.connect() as conn:
             for column, col_type in source_table_details.items():
                 if column not in target_table_details:
@@ -464,10 +476,10 @@ class BaseLoader(ABC):
         log.debug("Passed engine:")
         log.debug(self.engine)
         try:
-            tmp_tbl = "TMP_" + table_name
+            tmp_tbl = "tmp_" + str.lower(table_name)
             with self.engine.connect() as conn:
                 df.to_sql(
-                    name=table_name,
+                    name=str.lower(table_name),
                     con=conn,
                     if_exists="replace",
                     index=False,

@@ -55,7 +55,7 @@ class TableConfig(BaseModel):
     name: StrictStr
     ingest_all_columns: Optional[bool] = True
     description: Optional[StrictStr] = None
-    columns: Optional[list] = None
+    # columns: Optional[list] = None TODO test
 
 
 class FitsConfig(BaseModel):
