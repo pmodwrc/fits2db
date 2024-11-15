@@ -161,8 +161,13 @@ class BaseLoader(ABC):
         Cleans the database by dropping specific tables and metadata tables.
         """
         with self.db_session() as session:
-            self.drop_user_tables(session)
-            self.delete_meta_tables(session)
+            # self.drop_user_tables(session)
+            # self.delete_meta_tables(session)
+        # Easyer way to drop tables
+            meta = MetaData()
+            meta.reflect(bind=self.engine)
+            for tbl in reversed(meta.sorted_tables):
+                tbl.drop(self.engine)
 
     def get_fits2db_meta(self) -> pd.DataFrame:
         """
@@ -259,8 +264,8 @@ class BaseLoader(ABC):
                 try:
                     df = self.file.get_table(table_name)
                     df.data["FILE_META_ID"] = file_record.id
-                    df.data.columns = map(str.upper, df.data.columns)
-                    df.meta.columns = map(str.upper, df.meta.columns)
+                    df.data.columns = map(str.lower, df.data.columns)
+                    df.meta.columns = map(str.lower, df.meta.columns)
                     self.write_table_meta(
                         table_name, df.data, session, file_record.id
                     )
@@ -282,11 +287,22 @@ class BaseLoader(ABC):
         log.debug(self.engine)
 
         log.debug('clean df')  # TODO Extract
-        space_cols = [col for col in df.columns if ' ' in col]
-        mapping = {col: col.replace(' ', '_') + '_2' for col in space_cols}
+        
+        # space_cols = [col for col in df.columns if ' ' in col]
+        # mapping = {col: col.replace(' ', '_') + '_2' for col in df.columns}
+        mapping = {col: ''.join(c for c in col if c.isalnum() or c == ' ' or c == '_') for col in df.columns}
         df = df.rename(columns=mapping)
 
-        df['timestamp'] = pd.to_datetime(df['timestamp']) # FIX TIMESTAMP setting
+        space_cols = [col for col in df.columns if ' ' in col]
+        mapping = {col: col.replace(' ', '_') + '_' for col in space_cols}
+        df = df.rename(columns=mapping)
+
+ 
+        if 'timestamp' in df.columns:
+            df['timestamp'] = pd.to_datetime(df['timestamp']) # FIX TIMESTAMP setting
+        elif 'irradiance_timeutc_' in df.columns:
+            df = df.rename(columns={'irradiance_timeutc_': 'timestamp'})
+            df['timestamp'] = pd.to_datetime(df['timestamp'])
         try:
             tmp_tbl = "tmp_" + str.lower(table_name)  # change to lowercase
             with self.engine.connect() as conn:
