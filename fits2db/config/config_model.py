@@ -56,6 +56,7 @@ class TableConfig(BaseModel):
     ingest_all_columns: Optional[bool] = True
     description: Optional[StrictStr] = None
     columns: Optional[list] = None # TODO test
+    date_column: Optional[str] = None
 
 
 class FitsConfig(BaseModel):

@@ -202,6 +202,8 @@ class BaseLoader(ABC):
                     df.data["FILE_META_ID"] = self.new_file.id
                     df.data.columns = map(str.lower, df.data.columns) # change to lower
                     df.meta.columns = map(str.lower, df.meta.columns) # change to lower
+                    date_column = table["date_column"]
+                    df.data = self._prepare_dataframe(df.data, date_column)
                     self.write_table_meta(
                         table_name, df.data, session, self.new_file.id
                     )
@@ -269,6 +271,9 @@ class BaseLoader(ABC):
                     self.write_table_meta(
                         table_name, df.data, session, file_record.id
                     )
+
+                    date_column = table["date_column"]
+                    df.data = self._prepare_dataframe(df.data, date_column)
                     self.upsert_data_table(table_name, df.data)
                     self.update_table(table_name + "_META", df.meta)
                 except KeyError as err:
@@ -288,21 +293,7 @@ class BaseLoader(ABC):
 
         log.debug('clean df')  # TODO Extract
         
-        # space_cols = [col for col in df.columns if ' ' in col]
-        # mapping = {col: col.replace(' ', '_') + '_2' for col in df.columns}
-        mapping = {col: ''.join(c for c in col if c.isalnum() or c == ' ' or c == '_') for col in df.columns}
-        df = df.rename(columns=mapping)
 
-        space_cols = [col for col in df.columns if ' ' in col]
-        mapping = {col: col.replace(' ', '_') + '_' for col in space_cols}
-        df = df.rename(columns=mapping)
-
- 
-        if 'timestamp' in df.columns:
-            df['timestamp'] = pd.to_datetime(df['timestamp']) # FIX TIMESTAMP setting
-        elif 'irradiance_timeutc_' in df.columns:
-            df = df.rename(columns={'irradiance_timeutc_': 'timestamp'})
-            df['timestamp'] = pd.to_datetime(df['timestamp'])
         try:
             tmp_tbl = "tmp_" + str.lower(table_name)  # change to lowercase
             with self.engine.connect() as conn:
@@ -505,3 +496,18 @@ class BaseLoader(ABC):
         except Exception as err:
             log.error(err)
             raise
+    
+    def _prepare_dataframe(self, data, data_column):
+        mapping = {col: ''.join(c for c in col if c.isalnum() or c == ' ' or c == '_') for col in data.columns}
+        data = data.rename(columns=mapping)
+
+        space_cols = [col for col in data.columns if ' ' in col]
+        mapping = {col: col.replace(' ', '_') + '_' for col in space_cols}
+        data = data.rename(columns=mapping)
+
+ 
+        if data_column is not None:
+            if data_column in data.columns:
+                data = data.rename(columns={data_column: 'timestamp'})
+                data['timestamp'] = pd.to_datetime(data['timestamp']) # FIX TIMESTAMP setting
+        return data
