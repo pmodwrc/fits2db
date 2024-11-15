@@ -234,7 +234,7 @@ class Fits2db:
         writer = DBWriter(self.configs)
         self.db_file_infos = writer.get_db_file_infos()
         log.info(self.db_file_infos)
-        self.get_db_diff()
+        self.get_db_diff() # TODO Make sideeffects of function clear!!
 
         fits_file_paths = self.new_files["filepath"].to_list()
         for path in tqdm(fits_file_paths, desc="Upload new files"):

@@ -29,12 +29,14 @@ def get_configs(path: Union[str, os.PathLike]) -> ConfigType:
             config_data = yaml.safe_load(file)
         except yaml.YAMLError as err:
             log.error("YAML loading error: %s", err)
+            raise
             return {}
 
     try:
         data = ApplicationConfig(**config_data).model_dump()
     except (TypeError, ValueError) as err:
         log.error("Config file validation error: %s", err)
+        raise
         return {}
 
     return data

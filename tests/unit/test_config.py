@@ -26,16 +26,18 @@ def test_get_configs_valid():
 
 def test_get_configs_invalid():
     """Test getting a invalid config file"""
-    configs = get_configs(sample_invalid_config_file)
-    assert configs == {}
+    with pytest.raises(ValueError):
+        configs = get_configs(sample_invalid_config_file)
+    # assert configs == {}
 
 
 def test_get_configs_invalid_yml():
     """Test getting a invalid yml file"""
     # with pytest.raises(ValidationError):
     #    get_configs(sample_invalid_yml_file)
-    configs = get_configs(sample_invalid_yml_file)
-    assert configs == {}
+    with pytest.raises(yaml.YAMLError):
+        configs = get_configs(sample_invalid_yml_file)
+    # assert configs == {}
 
 
 def test_render_template():
