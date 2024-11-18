@@ -208,6 +208,9 @@ class BaseLoader(ABC):
             table_configs = self.config["fits_files"]["tables"]
             log.debug("Start upserting data")
 
+            updated_tables = []
+            new_tables = []
+
             for table in table_configs:
                 log.debug(f"Table in configs: {table}")
                 table_name = table["name"]
@@ -220,13 +223,42 @@ class BaseLoader(ABC):
                     df.meta.columns = map(str.lower, df.meta.columns) # change to lower
                     date_column = table["date_column"]
                     df.data = self._prepare_dataframe(df.data, date_column)
-                    self.write_table_meta(
-                        table_name, df.data, session, self.new_file.id
-                    )
+                    # self.write_table_meta(
+                        # table_name, df.data, session, self.new_file.id
+                    # )
                     self.upsert_data_table(str.lower(table_name), df.data)
-                    self.update_table(str.lower(table_name) + "_meta", df.meta) # change to lower
+                    # self.update_table(str.lower(table_name) + "_meta", df.meta) # change to lower
+                    if self.check_table_exists(str.lower(table_name)):
+                        updated_tables.append((str.lower(table_name), df))
+                    else:
+                        new_tables.append((str.lower(table_name), df))
+                    aaaaaa = 1
                 except KeyError as err:
                     log.error(f"\n {err}")
+        with self.engine.connect() as conn:
+            transaction = conn.begin()
+            try: 
+                for table, df in updated_tables: 
+                    self.merge_tables(table, 'tmp_' + table, conn)
+                transaction.commit()
+            except Exception as e:
+                transaction.rollback()  # Rollback the transaction on error
+                    # TODO delete file entry and exit function
+                log.error(f"An error occurred: {e}")
+        for table, df in updated_tables: 
+            self.drop_table('tmp_' + table)
+            self.update_table(str.lower(table) + "_meta", df.meta) # change to lower
+            self.write_table_meta(
+                table, df.data, session, self.new_file.id
+            )
+        for table, df in new_tables: 
+            self.rename_table('tmp_' + table, table)
+            self.update_table(str.lower(table) + "_meta", df.meta) # change to lower
+            self.write_table_meta(
+                table, df.data, session, self.new_file.id
+            )
+
+        # self.write_file_meta(session)
 
     def update_fits2db_meta(self, session: Session) -> Fits2DbMeta:
         file_record = (
@@ -273,7 +305,8 @@ class BaseLoader(ABC):
             session.commit()
             table_configs = self.config["fits_files"]["tables"]
             log.debug("Start upserting data")
-
+            updated_tables = []
+            new_tables = []
             for table in table_configs:
                 log.debug(f"Table in configs: {table}")
                 table_name = table["name"]
@@ -284,16 +317,46 @@ class BaseLoader(ABC):
                     df.data["FILE_META_ID"] = file_record.id
                     df.data.columns = map(str.lower, df.data.columns)
                     df.meta.columns = map(str.lower, df.meta.columns)
+                    df.meta['keyword'] = df.meta['keyword'].map(str.lower)
 
                     date_column = table["date_column"]
                     df.data = self._prepare_dataframe(df.data, date_column)
                     self.upsert_data_table(table_name, df.data, file_record.id)
-                    self.write_table_meta(
-                        table_name, df.data, session, file_record.id
-                    )
-                    self.update_table(table_name + "_META", df.meta)
+                    # self.write_table_meta(
+                        # table_name, df.data, session, file_record.id
+                    # )
+                    # self.update_table(table_name + "_META", df.meta)
+                    if self.check_table_exists(str.lower(table_name)):
+                        updated_tables.append((str.lower(table_name), df, file_record.id))
+                    else:
+                        new_tables.append((str.lower(table_name), df, file_record.id))
+                    whyyoudodispyhtonyoulittlepieceofshit = 1
+
                 except KeyError as err:
                     log.error(f"\n {err}")
+
+        with self.engine.connect() as conn:
+            transaction = conn.begin()
+            try: 
+                for table, df, file_id in updated_tables: 
+                    self.merge_tables(table, 'tmp_' + table, conn, file_id)
+                transaction.commit()
+            except Exception as e:
+                transaction.rollback()  # Rollback the transaction on error
+                # TODO whatabout da file meta STUFF
+                log.error(f"An error occurred: {e}")
+        for table, df, file_id in updated_tables: 
+            self.drop_table('tmp_' + table)
+            self.write_table_meta(
+                table, df.data, session, file_record.id
+            )
+            self.update_table(table + "_META", df.meta)
+        for table, df, file_id in new_tables: 
+            self.rename_table('tmp_' + table, table)
+            self.write_table_meta(
+                table, df.data, session, file_record.id
+            )
+            self.update_table(table + "_META", df.meta)
 
     def upsert_data_table(self, table_name: str, df: pd.DataFrame, file_id: int=None) -> None:
         """
@@ -321,11 +384,11 @@ class BaseLoader(ABC):
                 )
                 log.info(f"Temporary table {tmp_tbl} created.")
 
-            if self.check_table_exists(table_name):
-                self.merge_tables(table_name, tmp_tbl, file_id)
-                self.drop_table(tmp_tbl)
-            else:
-                self.rename_table(tmp_tbl, table_name)
+            # if self.check_table_exists(table_name):
+                # self.merge_tables(table_name, tmp_tbl, file_id)
+                # self.drop_table(tmp_tbl)
+            # else:
+                # self.rename_table(tmp_tbl, table_name)
 
         except Exception as err:
             log.error(err)
@@ -407,7 +470,7 @@ class BaseLoader(ABC):
                 error = str(e.__dict__["orig"])
                 log.error(error)
 
-    def merge_tables(self, original_table: str, tmp_table: str, file_id: int=None) -> None:
+    def merge_tables(self, original_table: str, tmp_table: str, conn, file_id: int=None) -> None:
         """
         Merges data from a temporary table into the original table.
 
@@ -422,35 +485,36 @@ class BaseLoader(ABC):
         source_table_details = self._fetch_column_details(tmp_table)
         target_table_details = self._fetch_column_details(original_table)
         source_table_details = {k.lower(): v for k, v in source_table_details.items()}
-        self._add_missing_columns(
-            source_table_details, original_table, target_table_details
+        # TODO ADD SOMEWHERE ELSE
+        # self._add_missing_columns(
+            # source_table_details, original_table, target_table_details
+        # )
+        # with self.engine.connect() as conn:
+            # transaction = conn.begin()
+            # try:
+        if file_id is not None:
+            delete_stmt = (
+                delete(original_table_obj)
+                .where(original_table_obj.c.file_meta_id == file_id)
+            )
+            res = conn.execute(delete_stmt)
+        common_columns = ", ".join(
+            set(source_table_details.keys())
+            & set(target_table_details.keys())
         )
-        with self.engine.connect() as conn:
-            transaction = conn.begin()
-            try:
-                if file_id is not None:
-                    delete_stmt = (
-                        delete(original_table_obj)
-                        .where(original_table_obj.c.file_meta_id == file_id)
-                    )
-                    res = conn.execute(delete_stmt)
-                common_columns = ", ".join(
-                    set(source_table_details.keys())
-                    & set(target_table_details.keys())
-                )
-                insert_query = f"""
-                INSERT INTO {original_table} ({common_columns})
-                SELECT {common_columns}
-                FROM {tmp_table}
-                """
-                result = conn.execute(text(insert_query))
-                transaction.commit()  # Commit the transaction
-                log.info(
-                    f"Data inserted successfully, {result.rowcount} rows affected."
-                )
-            except Exception as e:
-                transaction.rollback()  # Rollback the transaction on error
-                log.error(f"An error occurred: {e}")
+        insert_query = f"""
+        INSERT INTO {original_table} ({common_columns})
+        SELECT {common_columns}
+        FROM {tmp_table}
+        """
+        result = conn.execute(text(insert_query))
+        # transaction.commit()  # Commit the transaction
+        log.info(
+            f"Data inserted successfully, {result.rowcount} rows affected."
+        )
+            # except Exception as e:
+                # transaction.rollback()  # Rollback the transaction on error
+                # log.error(f"An error occurred: {e}")
 
     def close_connection(self) -> None:
         """
