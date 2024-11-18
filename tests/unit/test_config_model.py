@@ -97,6 +97,7 @@ def test_valid_application_config():
     ]
     assert app_config.fits_files.tables[0].model_dump() == {
         "columns": None,
+        "date_column": None,
         "description": None,
         "name": "test",
         "ingest_all_columns": True,
