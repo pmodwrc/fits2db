@@ -19,7 +19,7 @@ def month_year_iter( start_month, start_year, end_month, end_year ):
 
 hk_plotPostFix = "HK_Plot_monthly.png"
 rad_plotPostFix = "RAD_Plot_monthly.png"
-save_folder = './plots/'
+save_folder = './plots/monthly/'
 
 # hk_plotPostFix = "_HK_Plot.pdf"
 # rad_plotPostFix = "_RAD_Plot.pdf"

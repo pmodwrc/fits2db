@@ -169,3 +169,5 @@ tests/unit/data/config.yaml
 
 data/
 configs/
+
+plots/plots

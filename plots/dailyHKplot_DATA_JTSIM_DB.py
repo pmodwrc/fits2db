@@ -12,7 +12,7 @@ from TSI_PLOT_LIB_JTSIM_pandas import create_HKfig, create_Irradfig, plot_HK_1, 
 
 hk_plotPostFix = "_HK_Plot.png"
 rad_plotPostFix = "_RAD_Plot.png"
-save_folder = './plots/'
+save_folder = './plots/daily/'
 
 # hk_plotPostFix = "_HK_Plot.pdf"
 # rad_plotPostFix = "_RAD_Plot.pdf"

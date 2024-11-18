@@ -21,7 +21,7 @@ from TSI_PLOT_LIB_JTSIM_pandas import (
 
 hk_plotPostFix = "_HK_Plot.png"
 rad_plotPostFix = "_RAD_Plot.png"
-save_folder = "./plots/"
+save_folder = "./plots/lifetime/"
 
 # hk_plotPostFix = "_HK_Plot.pdf"
 # rad_plotPostFix = "_RAD_Plot.pdf"
