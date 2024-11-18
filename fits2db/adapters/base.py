@@ -14,7 +14,7 @@ from abc import ABC, abstractmethod
 from typing import Dict, Any
 
 import pandas as pd
-from sqlalchemy import engine, MetaData, Table, text, inspect
+from sqlalchemy import engine, MetaData, Table, text, inspect, delete
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.sql import select
 from sqlalchemy.exc import SQLAlchemyError
@@ -96,14 +96,30 @@ class BaseLoader(ABC):
             df (pd.DataFrame): The DataFrame representing the table data.
         """
         rows, cols = df.shape
-        new_table = Fits2DbTableMeta(
-            file_meta_id=file_id,
-            tablename=tbl_name,
-            record_count=rows,
-            column_count=cols,
-        )
-        session.add(new_table)
+        table = session.execute(select(Fits2DbTableMeta).filter_by(file_meta_id=file_id, tablename=tbl_name)).scalar_one_or_none()
+        if table is None:
+            new_table = Fits2DbTableMeta(
+                file_meta_id=file_id,
+                tablename=tbl_name,
+                record_count=rows,
+                column_count=cols,
+            )
+            session.add(new_table)
+        else:
+            table.record_count = rows
+            table.column_count = cols
+            table.tablename = str.lower(tbl_name)
         session.commit()
+
+        # with self.engine.connect() as conn:
+            # transaction = conn.begin()
+            # try:
+                # if file_id is not None:
+                    # delete_stmt = (
+                        # delete(original_table_obj)
+                        # .where(original_table_obj.c.file_meta_id == file_id)
+                    # )
+                    # res = conn.execute(delete_stmt)
 
     def get_tables(self, session: Session) -> set[str]:
         """
@@ -253,7 +269,7 @@ class BaseLoader(ABC):
         """
         with self.db_session() as session:
             file_record = self.update_fits2db_meta(session)
-            self.update_fits2db_table(session, file_record)
+            # self.update_fits2db_table(session, file_record)
             session.commit()
             table_configs = self.config["fits_files"]["tables"]
             log.debug("Start upserting data")
@@ -268,18 +284,18 @@ class BaseLoader(ABC):
                     df.data["FILE_META_ID"] = file_record.id
                     df.data.columns = map(str.lower, df.data.columns)
                     df.meta.columns = map(str.lower, df.meta.columns)
-                    self.write_table_meta(
-                        table_name, df.data, session, file_record.id
-                    )
 
                     date_column = table["date_column"]
                     df.data = self._prepare_dataframe(df.data, date_column)
-                    self.upsert_data_table(table_name, df.data)
+                    self.upsert_data_table(table_name, df.data, file_record.id)
+                    self.write_table_meta(
+                        table_name, df.data, session, file_record.id
+                    )
                     self.update_table(table_name + "_META", df.meta)
                 except KeyError as err:
                     log.error(f"\n {err}")
 
-    def upsert_data_table(self, table_name: str, df: pd.DataFrame) -> None:
+    def upsert_data_table(self, table_name: str, df: pd.DataFrame, file_id: int=None) -> None:
         """
         Upserts data into a table in the database. If the table exists, merges the data.
         Otherwise, renames the temporary table.
@@ -306,7 +322,7 @@ class BaseLoader(ABC):
                 log.info(f"Temporary table {tmp_tbl} created.")
 
             if self.check_table_exists(table_name):
-                self.merge_tables(table_name, tmp_tbl)
+                self.merge_tables(table_name, tmp_tbl, file_id)
                 self.drop_table(tmp_tbl)
             else:
                 self.rename_table(tmp_tbl, table_name)
@@ -391,7 +407,7 @@ class BaseLoader(ABC):
                 error = str(e.__dict__["orig"])
                 log.error(error)
 
-    def merge_tables(self, original_table: str, tmp_table: str) -> None:
+    def merge_tables(self, original_table: str, tmp_table: str, file_id: int=None) -> None:
         """
         Merges data from a temporary table into the original table.
 
@@ -399,6 +415,10 @@ class BaseLoader(ABC):
             original_table (str): The name of the original table.
             tmp_table (str): The name of the temporary table.
         """
+        metadata_obj = MetaData()
+        metadata_obj.reflect(bind=self.engine)
+        original_table_obj = metadata_obj.tables[str.lower(original_table)]
+        tmp_table_obj = metadata_obj.tables[str.lower(tmp_table)]
         source_table_details = self._fetch_column_details(tmp_table)
         target_table_details = self._fetch_column_details(original_table)
         source_table_details = {k.lower(): v for k, v in source_table_details.items()}
@@ -408,6 +428,12 @@ class BaseLoader(ABC):
         with self.engine.connect() as conn:
             transaction = conn.begin()
             try:
+                if file_id is not None:
+                    delete_stmt = (
+                        delete(original_table_obj)
+                        .where(original_table_obj.c.file_meta_id == file_id)
+                    )
+                    res = conn.execute(delete_stmt)
                 common_columns = ", ".join(
                     set(source_table_details.keys())
                     & set(target_table_details.keys())
