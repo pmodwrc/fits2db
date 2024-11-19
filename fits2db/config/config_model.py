@@ -64,6 +64,7 @@ class FitsConfig(BaseModel):
 
     paths: list
     tables: list[TableConfig]
+    delete_columns_from_missing_tables: Optional[bool] = False
 
 
 class ConfigFileValidator(BaseModel):

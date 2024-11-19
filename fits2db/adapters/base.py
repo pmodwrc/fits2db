@@ -100,7 +100,7 @@ class BaseLoader(ABC):
         if table is None:
             new_table = Fits2DbTableMeta(
                 file_meta_id=file_id,
-                tablename=tbl_name,
+                tablename=str.lower(tbl_name),
                 record_count=rows,
                 column_count=cols,
             )
@@ -232,31 +232,35 @@ class BaseLoader(ABC):
                         updated_tables.append((str.lower(table_name), df))
                     else:
                         new_tables.append((str.lower(table_name), df))
-                    aaaaaa = 1
+                    continue
+
                 except KeyError as err:
                     log.error(f"\n {err}")
-        with self.engine.connect() as conn:
-            transaction = conn.begin()
-            try: 
-                for table, df in updated_tables: 
-                    self.merge_tables(table, 'tmp_' + table, conn)
-                transaction.commit()
-            except Exception as e:
-                transaction.rollback()  # Rollback the transaction on error
-                    # TODO delete file entry and exit function
-                log.error(f"An error occurred: {e}")
-        for table, df in updated_tables: 
-            self.drop_table('tmp_' + table)
-            self.update_table(str.lower(table) + "_meta", df.meta) # change to lower
-            self.write_table_meta(
-                table, df.data, session, self.new_file.id
-            )
-        for table, df in new_tables: 
-            self.rename_table('tmp_' + table, table)
-            self.update_table(str.lower(table) + "_meta", df.meta) # change to lower
-            self.write_table_meta(
-                table, df.data, session, self.new_file.id
-            )
+            with self.engine.connect() as conn:
+                transaction = conn.begin()
+                try: 
+                    for table, df in updated_tables: 
+                        self.merge_tables(table, 'tmp_' + table, conn)
+                    transaction.commit()
+                except Exception as e:
+                    transaction.rollback()  # Rollback the transaction on error
+                        # TODO delete file entry and exit function
+                    log.error(f"An error occurred: {e}")
+                    session.delete(self.new_file)
+                    session.commit()
+                    return
+            for table, df in updated_tables: 
+                self.drop_table('tmp_' + table)
+                self.update_table(str.lower(table) + "_meta", df.meta) # change to lower
+                self.write_table_meta(
+                    table, df.data, session, self.new_file.id
+                )
+            for table, df in new_tables: 
+                self.rename_table('tmp_' + table, table)
+                self.update_table(str.lower(table) + "_meta", df.meta) # change to lower
+                self.write_table_meta(
+                    table, df.data, session, self.new_file.id
+                )
 
         # self.write_file_meta(session)
 
@@ -274,8 +278,36 @@ class BaseLoader(ABC):
                 f"No record found for file: {self.file.file_name} at {self.file.absolute_path.as_posix()}"
             )
             return
-        file_record.last_file_mutation = self.file.mdate
+        # file_record.last_file_mutation = self.file.mdate
         return file_record
+
+    def get_current_file_tables(self, session: Session, file_record: Fits2DbMeta):
+        tables_to_delete = session.query(Fits2DbTableMeta).filter(
+            Fits2DbTableMeta.file_meta_id == file_record.id
+        )
+        tables = {}
+        for table_meta in tables_to_delete:
+            tablename = table_meta.tablename
+            metadata = MetaData()
+            table = Table(tablename, metadata, autoload_with=self.engine)
+            tables[tablename] = table
+        return tables
+
+    def delete_file_from_table(self, session: Session, file_record: Fits2DbMeta, table: Table):
+        tables_to_delete = session.query(Fits2DbTableMeta).filter(
+            Fits2DbTableMeta.file_meta_id == file_record.id, Fits2DbTableMeta.tablename == table.name
+        )
+        tables = {}
+        delete_stmt = table.delete().where(
+            table.c.file_meta_id == file_record.id # change to lowercase
+        )
+        session.execute(delete_stmt)
+        log.info(
+            f"Deleted rows in table '{table.name}' where file_meta_id = {file_record.id}"
+        )
+        tables_to_delete.delete(synchronize_session=False)
+        return tables
+    
 
     def update_fits2db_table(self, session: Session, file_record: Fits2DbMeta):
         tables_to_delete = session.query(Fits2DbTableMeta).filter(
@@ -301,6 +333,7 @@ class BaseLoader(ABC):
         """
         with self.db_session() as session:
             file_record = self.update_fits2db_meta(session)
+            remaining_tables = self.get_current_file_tables(session, file_record)
             # self.update_fits2db_table(session, file_record)
             session.commit()
             table_configs = self.config["fits_files"]["tables"]
@@ -317,7 +350,7 @@ class BaseLoader(ABC):
                     df.data["FILE_META_ID"] = file_record.id
                     df.data.columns = map(str.lower, df.data.columns)
                     df.meta.columns = map(str.lower, df.meta.columns)
-                    df.meta['keyword'] = df.meta['keyword'].map(str.lower)
+                    # df.meta['keyword'] = df.meta['keyword'].map(str.lower)
 
                     date_column = table["date_column"]
                     df.data = self._prepare_dataframe(df.data, date_column)
@@ -326,37 +359,47 @@ class BaseLoader(ABC):
                         # table_name, df.data, session, file_record.id
                     # )
                     # self.update_table(table_name + "_META", df.meta)
+                    remaining_tables.pop(str.lower(table_name), None)
                     if self.check_table_exists(str.lower(table_name)):
                         updated_tables.append((str.lower(table_name), df, file_record.id))
                     else:
                         new_tables.append((str.lower(table_name), df, file_record.id))
-                    whyyoudodispyhtonyoulittlepieceofshit = 1
+                    continue
 
                 except KeyError as err:
                     log.error(f"\n {err}")
 
-        with self.engine.connect() as conn:
-            transaction = conn.begin()
-            try: 
-                for table, df, file_id in updated_tables: 
-                    self.merge_tables(table, 'tmp_' + table, conn, file_id)
-                transaction.commit()
-            except Exception as e:
-                transaction.rollback()  # Rollback the transaction on error
-                # TODO whatabout da file meta STUFF
-                log.error(f"An error occurred: {e}")
-        for table, df, file_id in updated_tables: 
-            self.drop_table('tmp_' + table)
-            self.write_table_meta(
-                table, df.data, session, file_record.id
-            )
-            self.update_table(table + "_META", df.meta)
-        for table, df, file_id in new_tables: 
-            self.rename_table('tmp_' + table, table)
-            self.write_table_meta(
-                table, df.data, session, file_record.id
-            )
-            self.update_table(table + "_META", df.meta)
+
+            with self.engine.connect() as conn:
+                transaction = conn.begin()
+                try: 
+                    for table, df, file_id in updated_tables: 
+                        self.merge_tables(table, 'tmp_' + table, conn, file_id)
+                    transaction.commit()
+                except Exception as e:
+                    transaction.rollback()  # Rollback the transaction on error
+                    # TODO whatabout da file meta STUFF
+                    log.error(f"An error occurred: {e}")
+                    return
+            for table, df, file_id in updated_tables: 
+                self.drop_table('tmp_' + table)
+                self.write_table_meta(
+                    table, df.data, session, file_record.id
+                )
+                self.update_table(table + "_META", df.meta)
+            for table, df, file_id in new_tables: 
+                self.rename_table('tmp_' + table, table)
+                self.write_table_meta(
+                    table, df.data, session, file_record.id
+                )
+                self.update_table(table + "_META", df.meta)
+            
+            if self.config['fits_files']['delete_columns_from_missing_tables']:
+                for k, table in remaining_tables.items():
+                    self.delete_file_from_table(session, file_record, table)
+
+            file_record.last_file_mutation = self.file.mdate
+            session.commit()
 
     def upsert_data_table(self, table_name: str, df: pd.DataFrame, file_id: int=None) -> None:
         """
