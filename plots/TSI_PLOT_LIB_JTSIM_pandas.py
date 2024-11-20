@@ -22,7 +22,6 @@ from matplotlib import ticker
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import pandas as pd
-import numpy as np
 from matplotlib.ticker import AutoMinorLocator, MultipleLocator
 
 
@@ -125,7 +124,6 @@ def plot_HK_1(hkdata: pd.DataFrame, ax: plt.Axes, mode: str):
                 mdates.DayLocator(bymonthday=range(1,32,3))
             )  # Set major ticks every 3 Days
             a.xaxis.set_major_formatter(mdates.DateFormatter("%d-%m-%y"))
-
             start_time = mdates.date2num(hkdata["timestamp"].min().date())
             end_time = mdates.date2num(hkdata["timestamp"].max().date())
             a.set_xlim(left=start_time, right=end_time+1)
@@ -136,7 +134,6 @@ def plot_HK_1(hkdata: pd.DataFrame, ax: plt.Axes, mode: str):
             a.xaxis.set_major_locator(
                 mdates.MonthLocator()
             )  # Set major ticks every 3 Days
-            # a.xaxis.set_major_locator(mdates.YearLocator())
             a.xaxis.set_major_formatter(mdates.DateFormatter("%d-%m-%y"))
 
     if mode == "lifetime":
@@ -145,7 +142,6 @@ def plot_HK_1(hkdata: pd.DataFrame, ax: plt.Axes, mode: str):
             a.xaxis.set_major_locator(
                 mdates.MonthLocator(interval=3)
             )  # Set major ticks every 3 Days
-            # a.xaxis.set_major_locator(mdates.YearLocator())
             a.xaxis.set_major_formatter(mdates.DateFormatter("%d-%m-%y"))
 
     for a in ax.flat:
@@ -556,19 +552,18 @@ def plot_HK_2(hkdata: pd.DataFrame, ax: plt.Axes, mode: str):
     __ms = 0.5
 
     if mode == "day":
-        for a in ax.flat:
+        for a in ax[:-1].flat:
             a.set_xlabel("Time UTC")
             a.xaxis.set_major_locator(
                 mdates.HourLocator(interval=4)
             )  # Set major ticks every 4 hours
             a.xaxis.set_major_formatter(mdates.DateFormatter("%Hh"))
             start_time = mdates.date2num(hkdata["timestamp"].min())
-            # end_time = mdates.date2num(hkdata["timestamp"].max())
             end_time = start_time + 1
             a.set_xlim(start_time, end_time)
 
     if mode == "month":
-        for a in ax.flat:
+        for a in ax[:-1].flat:
             a.set_xlabel("Date UTC")
             a.xaxis.set_major_locator(
                 mdates.DayLocator(bymonthday=range(1,32,3))
@@ -580,7 +575,7 @@ def plot_HK_2(hkdata: pd.DataFrame, ax: plt.Axes, mode: str):
             a.set_xlim(left=start_time, right=end_time+1)
 
     if mode == "year":
-        for a in ax.flat:
+        for a in ax[:-1].flat:
             a.set_xlabel("Date UTC")
             a.xaxis.set_major_locator(
                 mdates.MonthLocator()
@@ -589,7 +584,7 @@ def plot_HK_2(hkdata: pd.DataFrame, ax: plt.Axes, mode: str):
             a.xaxis.set_major_formatter(mdates.DateFormatter("%d-%m-%y"))
 
     if mode == "lifetime":
-        for a in ax.flat:
+        for a in ax[:-1].flat:
             a.set_xlabel("Date UTC")
             a.xaxis.set_major_locator(
                 mdates.MonthLocator(interval=3)
@@ -687,7 +682,7 @@ def plot_HK_2(hkdata: pd.DataFrame, ax: plt.Axes, mode: str):
     )
 
     # ax[0,1].plot(hkdata['timestamp'], hkdata['CPU_5VCPU_CM'),color='yellow',markersize=__ms)
-    ax[0, 1].set_ylim(-0.1, 1.5)
+    # ax[0, 1].set_ylim(-0.1, 1.5) #  TODO 
     ax[0, 1].legend(
         numpoints=5,
         ncol=2,
@@ -792,10 +787,9 @@ def plot_HK_2(hkdata: pd.DataFrame, ax: plt.Axes, mode: str):
         markersize=__ms,
         linewidth=0,
     )
-    # import ipdb; ipdb.set_trace()
-    # ax[2,0].hist2d(___gamma.to_numpy(), ___beta.to_numpy(), bins=(np.arange(-61.5,61.5,1), np.arange(-61.5,61.5,1)), norm='log') #, range=[[-100,100],[-100,100]])
     ax[2, 0].axis("equal")
-    ax[2, 0].set_ylim(-60, 60)
+    ax[2, 0].set_xlim(left=-60, right=60)
+    ax[2, 0].set_ylim(-50, 50)
     # ax[2, 0].set_xlim(-73.3, 73.3)
 
     # plot 4Q Sensor graph
@@ -815,7 +809,8 @@ def plot_HK_2(hkdata: pd.DataFrame, ax: plt.Axes, mode: str):
         linewidth=0,
     )
     ax[2, 1].axis("equal")
-    ax[2, 1].set_ylim(-120, 120)
+    ax[2, 1].set_xlim(left=-120, right=120)
+    ax[2, 1].set_ylim(-110, 110)
     # ax[2, 1].set_xlim(-146.67, 146.67)
 
 
@@ -852,10 +847,7 @@ def plot_SCI_1(hkdata: pd.DataFrame, ax: plt.Axes, mode: str):
             a.xaxis.set_major_locator(
                 mdates.MonthLocator()
             )  # Set major ticks every 3 Days
-            # a.xaxis.set_major_locator(mdates.YearLocator())
             a.xaxis.set_major_formatter(mdates.DateFormatter("%d-%m-%y"))
-            # start_time = mdates.date2num(hkdata["timestamp"].min())
-            # end_time = start_time + 365
             start_time = mdates.date2num(hkdata["timestamp"].min().date())
             end_time = mdates.date2num(hkdata["timestamp"].max().date())
             a.set_xlim(left=start_time, right=end_time+1)
@@ -866,7 +858,6 @@ def plot_SCI_1(hkdata: pd.DataFrame, ax: plt.Axes, mode: str):
             a.xaxis.set_major_locator(
                 mdates.MonthLocator(interval=3)
             )  # Set major ticks every 3 Days
-            # a.xaxis.set_major_locator(mdates.YearLocator())
             a.xaxis.set_major_formatter(mdates.DateFormatter("%d-%m-%y"))
             start_time = mdates.date2num(hkdata["timestamp"].min())
             end_time = mdates.date2num(hkdata["timestamp"].max())
@@ -903,7 +894,6 @@ def plot_SCI_1(hkdata: pd.DataFrame, ax: plt.Axes, mode: str):
     )
     ax[0, 0].set_ylim(0, 5)
 
-    # ax[0, 0].set_xlim(start_time, end_time)  # TODO if not day then what?
     ax[0, 0].legend(
         numpoints=5,
         ncol=2,
@@ -934,10 +924,6 @@ def plot_SCI_1(hkdata: pd.DataFrame, ax: plt.Axes, mode: str):
         label="shuntVoltageC",
     )
     ax[0, 1].set_ylim(0, 5)
-    # ax[0,1].set_xlim(__startTime.plot_date,__endTime.plot_date)
-    # ax[0,1].set_xlim(18815,18816)
-    # ax[0, 1].set_xlim(start_time, end_time)  # TODO if not day then what?
-    # ax[0, 1].grid(b="on")
     ax[0, 1].legend(
         numpoints=5,
         ncol=2,
@@ -964,9 +950,6 @@ def plot_SCI_1(hkdata: pd.DataFrame, ax: plt.Axes, mode: str):
         label="dacC",
     )
     ax[1, 0].set_ylim(0, 2.5)
-    # ax[1,0].set_xlim(__startTime.plot_date,__endTime.plot_date)
-    # ax[1, 0].set_xlim(start_time, end_time)  # TODO if not day then what?
-    # ax[1, 0].grid(b="on")
     ax[1, 0].legend(numpoints=5, ncol=2, loc="upper right")
 
     ax[1, 1].set_title("Cavity Assignment")
@@ -998,10 +981,7 @@ def plot_SCI_1(hkdata: pd.DataFrame, ax: plt.Axes, mode: str):
         linewidth=0.1,
         label="backup cavity",
     )
-    # ax[1,1].get_ylim()
     ax[1, 1].set_ylim(-0.15, 3.15)
-    # ax[1,1].set_xlim(__startTime.plot_date,__endTime.plot_date)
-    # ax[1, 1].set_xlim(start_time, end_time)  # TODO if not day then what?
     ax[1, 1].yaxis.set_major_locator(ticker.FixedLocator([0, 1, 2, 3]))
     ax[1, 1].yaxis.set_major_formatter(ticker.FixedFormatter(["none", "A", "B", "C"]))
     # ax[1, 1].grid(b="on")
@@ -1041,18 +1021,13 @@ def plot_SCI_1(hkdata: pd.DataFrame, ax: plt.Axes, mode: str):
         label="Shutter C",
     )
 
-    # ax[2,0].set_xlim(__startTime.plot_date,__endTime.plot_date)
-    # ax[2, 0].set_xlim(start_time, end_time)  # TODO if not day then what?
     ax[2, 0].set_ylim(-0.15, 5.15)
     ax[2, 0].yaxis.set_major_locator(ticker.FixedLocator([0, 1, 2, 3, 4, 5]))
     ax[2, 0].yaxis.set_major_formatter(
         ticker.FixedFormatter(["A_cl", "A_op", "B_cl", "B_op", "C_cl", "C_op"])
     )
     ax[2, 0].legend(numpoints=5, ncol=2, loc="upper right")
-    #    ax[2,0].legend(
-    #            [sciCols['shutter_A_2st_phase_open'].name, sciCols['shutter_B_2st_phase_open'].name,\
-    #             sciCols['shutter_C_2st_phase_open'].name],\
-    #             numpoints=5, ncol=2)
+
 
     ax[2, 1].set_title("Shutter 1 Phase Status")
     if mode == "day":
@@ -1088,8 +1063,6 @@ def plot_SCI_1(hkdata: pd.DataFrame, ax: plt.Axes, mode: str):
         label="Shutter C",
     )
 
-    # ax[2,1].set_xlim(__startTime.plot_date,__endTime.plot_date)
-    # ax[2, 1].set_xlim(start_time, end_time)  # TODO if not day then what?
     ax[2, 1].set_ylim(-0.15, 5.15)
     ax[2, 1].yaxis.set_major_locator(ticker.FixedLocator([0, 1, 2, 3, 4, 5]))
     ax[2, 1].yaxis.set_major_formatter(
@@ -1108,7 +1081,6 @@ def plot_irr(irr_data: pd.DataFrame, ax: plt.Axes, mode: str):
         a.xaxis.set_major_locator(
             mdates.MonthLocator(interval=3)
         )  # Set major ticks every 3 Days
-        # a.xaxis.set_major_locator(mdates.YearLocator())
         a.xaxis.set_major_formatter(mdates.DateFormatter("%d-%m-%y"))
         a.set_ylim(1355, 1366)
 
