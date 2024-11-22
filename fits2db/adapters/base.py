@@ -363,7 +363,14 @@ class BaseLoader(ABC):
                     # self.update_table(table_name + "_META", df.meta)
                     remaining_tables.pop(table_name, None)
                     if self.check_table_exists(table_name):
-                        updated_tables.append((table_name, df, file_record.id))
+                        source_table_details = self._fetch_column_details('tmp_' + table_name)
+                        target_table_details = self._fetch_column_details(table_name)
+                        source_table_details = {k.lower(): v for k, v in source_table_details.items()}
+                        new_columns = self._add_missing_columns(
+                            source_table_details, table_name, target_table_details
+                        )
+
+                        updated_tables.append((table_name, df, file_record.id, new_columns))
                     else:
                         new_tables.append((table_name, df, file_record.id))
                     continue
@@ -375,7 +382,7 @@ class BaseLoader(ABC):
             with self.engine.connect() as conn:
                 transaction = conn.begin()
                 try: 
-                    for table, df, file_id in updated_tables: 
+                    for table, df, file_id, new_columns in updated_tables: 
                         self.merge_tables(table, 'tmp_' + table, conn, file_id)
                     transaction.commit()
                 except Exception as e:
@@ -383,7 +390,7 @@ class BaseLoader(ABC):
                     # TODO whatabout da file meta STUFF
                     log.error(f"An error occurred: {e}")
                     return
-            for table, df, file_id in updated_tables: 
+            for table, df, file_id, _ in updated_tables: 
                 self.drop_table('tmp_' + table)
                 self.write_table_meta(
                     table, df.data, session, file_record.id
@@ -596,6 +603,7 @@ class BaseLoader(ABC):
             target_table (str): The name of the target table.
             target_table_details (Dict[str, Any]): Details of the target table's columns.
         """
+        added_columns = []
         source_table_details = {k.lower(): v for k, v in source_table_details.items()}
         target_table = str.lower(target_table)
         with self.engine.connect() as conn:
@@ -606,6 +614,8 @@ class BaseLoader(ABC):
                     log.info(
                         f"Added column {column} of type {col_type} to {target_table}"
                     )
+                    added_columns.append(column)
+        return added_columns
 
     def update_table(self, table_name: str, df: pd.DataFrame) -> None:
         """
