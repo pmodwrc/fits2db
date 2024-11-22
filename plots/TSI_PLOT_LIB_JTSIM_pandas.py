@@ -101,6 +101,61 @@ def create_irradiance_fig(plot_title):
     f.dpi = 500
     return f, ax
 
+def convert_cavity_to_numeric(df,):
+    cavity_map = {"a": 1, "A": 1, "b": 2, "B": 2, "c": 3, "C":3, "none": 0, None: 0}
+    df["nominal_cavity"] = df["nominal_cavity"].map(
+        lambda x: cavity_map.get(x, 0)
+    ).astype('uint8')
+    df["reference_cavity"] = df["reference_cavity"].map(
+        lambda x: cavity_map.get(x, 0)
+    ).astype('uint8')
+    df["backup_cavity_1"] = df["backup_cavity_1"].map(
+        lambda x: cavity_map.get(x, 0)
+    ).astype('uint8')
+    return df
+    pass
+
+
+def plot_HK_1_from_cfg(hkdata: pd.DataFrame, ax: plt.Axes, mode: str, cfg):
+    __ms = 0.5
+    if mode == "day":
+        for a in ax.flat:
+            a.set_xlabel("Time UTC")
+            a.xaxis.set_major_locator(
+                mdates.HourLocator(interval=4)
+            )  # Set major ticks every 4 hours
+            a.xaxis.set_major_formatter(mdates.DateFormatter("%Hh"))
+            start_time = mdates.date2num(hkdata["timestamp"].min())
+            # end_time = mdates.date2num(hkdata["timestamp"].max())
+            end_time = start_time + 1
+            a.set_xlim(start_time, end_time)
+            a.grid(True)
+            a.tick_params(axis="x", rotation=30)
+    
+    for subplot in cfg['content']:
+        axis = ax[subplot['row'], subplot['col']]
+        axis.set_title(subplot['title'])
+        axis.set_ylabel(subplot['ylabel'])
+        offset = subplot['y_offset']
+        for plot_cfg in subplot['data']:
+            axis.plot(
+                hkdata[plot_cfg['x']],
+                hkdata[plot_cfg['y']] + offset,
+                plot_cfg['marker'],
+                color=plot_cfg['color'],
+                markersize=__ms,
+                label=plot_cfg['label'],
+            )
+        ylims = subplot.get('ylims', None)
+        if ylims is not None:
+            axis.set_ylim(tuple(ylims))
+        axis.legend(
+            numpoints=5,
+            ncol=2,
+            loc=subplot['legend_loc'],
+        )
+     
+
 
 def plot_HK_1(hkdata: pd.DataFrame, ax: plt.Axes, mode: str):
     __ms = 0.5
@@ -295,7 +350,7 @@ def plot_HK_1(hkdata: pd.DataFrame, ax: plt.Axes, mode: str):
     ax[1, 0].legend(
         numpoints=5,
         ncol=2,
-        loc="upper right",
+        loc="lower right",
     )
 
     # plot Secondary Voltages graph
@@ -682,7 +737,7 @@ def plot_HK_2(hkdata: pd.DataFrame, ax: plt.Axes, mode: str):
     )
 
     # ax[0,1].plot(hkdata['timestamp'], hkdata['CPU_5VCPU_CM'),color='yellow',markersize=__ms)
-    # ax[0, 1].set_ylim(-0.1, 1.5) #  TODO 
+    ax[0, 1].set_ylim(-0.1, 1.5) #  TODO 
     ax[0, 1].legend(
         numpoints=5,
         ncol=2,
