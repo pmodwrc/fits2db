@@ -218,6 +218,7 @@ class BaseLoader(ABC):
                 log.info(table["ingest_all_columns"])
                 try:
                     df = self.file.get_table(table_name)
+                    table_name = str.lower(table_name)
                     df.data["FILE_META_ID"] = self.new_file.id
                     df.data.columns = map(str.lower, df.data.columns) # change to lower
                     df.meta.columns = map(str.lower, df.meta.columns) # change to lower
@@ -226,12 +227,12 @@ class BaseLoader(ABC):
                     # self.write_table_meta(
                         # table_name, df.data, session, self.new_file.id
                     # )
-                    self.upsert_data_table(str.lower(table_name), df.data)
+                    self.upsert_data_table(table_name, df.data)
                     # self.update_table(str.lower(table_name) + "_meta", df.meta) # change to lower
-                    if self.check_table_exists(str.lower(table_name)):
-                        updated_tables.append((str.lower(table_name), df))
+                    if self.check_table_exists(table_name):
+                        updated_tables.append((table_name, df))
                     else:
-                        new_tables.append((str.lower(table_name), df))
+                        new_tables.append((table_name, df))
                     continue
 
                 except KeyError as err:
@@ -347,6 +348,7 @@ class BaseLoader(ABC):
                 log.info(table["ingest_all_columns"])
                 try:
                     df = self.file.get_table(table_name)
+                    table_name = str.lower(table_name)
                     df.data["FILE_META_ID"] = file_record.id
                     df.data.columns = map(str.lower, df.data.columns)
                     df.meta.columns = map(str.lower, df.meta.columns)
@@ -359,11 +361,11 @@ class BaseLoader(ABC):
                         # table_name, df.data, session, file_record.id
                     # )
                     # self.update_table(table_name + "_META", df.meta)
-                    remaining_tables.pop(str.lower(table_name), None)
-                    if self.check_table_exists(str.lower(table_name)):
-                        updated_tables.append((str.lower(table_name), df, file_record.id))
+                    remaining_tables.pop(table_name, None)
+                    if self.check_table_exists(table_name):
+                        updated_tables.append((table_name, df, file_record.id))
                     else:
-                        new_tables.append((str.lower(table_name), df, file_record.id))
+                        new_tables.append((table_name, df, file_record.id))
                     continue
 
                 except KeyError as err:
