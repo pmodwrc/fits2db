@@ -41,7 +41,8 @@ dependencies = [
 "numpy >= 1.0.0, < 2.0",
 "sqlalchemy >= 2.0.0",
 "tqdm >= 4.0.0",
-"mysql-connector-python >= 8.0.0"
+"mysql-connector-python >= 8.0.0",
+"click >=8.1.7"
 ]
 
 [project.urls]
