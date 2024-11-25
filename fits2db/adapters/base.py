@@ -669,9 +669,16 @@ class BaseLoader(ABC):
         data = data.rename(columns=mapping)
 
         space_cols = [col for col in data.columns if ' ' in col]
-        mapping = {col: col.replace(' ', '_') + '_' for col in space_cols}
+        mapping = {col: col.replace(' ', '_') for col in space_cols}
         data = data.rename(columns=mapping)
 
+        cols=pd.Series(data.columns)
+
+        for dup in cols[cols.duplicated()].unique(): 
+            cols[cols[cols == dup].index.values.tolist()] = [dup + '_' + str(i) if i != 0 else dup for i in range(sum(cols == dup))]
+
+        # rename the columns with the cols list.
+        data.columns=cols
  
         if data_column is not None:
             if data_column in data.columns:
