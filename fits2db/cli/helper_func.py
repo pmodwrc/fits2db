@@ -88,10 +88,17 @@ def build(config_path, reset):
 
 @click.command()
 @click.argument("config_path", default=".", type=click.Path(exists=True))
-def update(config_path):
+@click.option(
+    "-f",
+    "--force",
+    default=False,
+    is_flag=True,
+    help="Force overwrite of files in config. Accepts skipping invalid files",
+)
+def update(config_path, force):
     """Upsert all tables defnied in config.yml to databse"""
     fits = Fits2db(config_path)
-    fits.update_db()
+    fits.update_db(force=force)
 
 
 @click.command()
