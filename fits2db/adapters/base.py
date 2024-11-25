@@ -230,27 +230,36 @@ class BaseLoader(ABC):
                     self.upsert_data_table(table_name, df.data)
                     # self.update_table(str.lower(table_name) + "_meta", df.meta) # change to lower
                     if self.check_table_exists(table_name):
-                        updated_tables.append((table_name, df))
+
+                        source_table_details = self._fetch_column_details('tmp_' + table_name)
+                        target_table_details = self._fetch_column_details(table_name)
+                        source_table_details = {k.lower(): v for k, v in source_table_details.items()}
+                        new_columns = self._add_missing_columns(
+                            source_table_details, table_name, target_table_details
+                        )
+                        updated_tables.append((table_name, df, new_columns))
                     else:
                         new_tables.append((table_name, df))
                     continue
 
                 except KeyError as err:
                     log.error(f"\n {err}")
+
             with self.engine.connect() as conn:
                 transaction = conn.begin()
                 try: 
-                    for table, df in updated_tables: 
+                    for table, df, new_columns in updated_tables: 
                         self.merge_tables(table, 'tmp_' + table, conn)
                     transaction.commit()
                 except Exception as e:
                     transaction.rollback()  # Rollback the transaction on error
                         # TODO delete file entry and exit function
+                    self._delete_columns(updated_tables)
                     log.error(f"An error occurred: {e}")
                     session.delete(self.new_file)
                     session.commit()
                     return
-            for table, df in updated_tables: 
+            for table, df, new_columns in updated_tables: 
                 self.drop_table('tmp_' + table)
                 self.update_table(str.lower(table) + "_meta", df.meta) # change to lower
                 self.write_table_meta(
@@ -378,7 +387,6 @@ class BaseLoader(ABC):
                 except KeyError as err:
                     log.error(f"\n {err}")
 
-
             with self.engine.connect() as conn:
                 transaction = conn.begin()
                 try: 
@@ -387,6 +395,7 @@ class BaseLoader(ABC):
                     transaction.commit()
                 except Exception as e:
                     transaction.rollback()  # Rollback the transaction on error
+                    self._delete_columns(updated_tables)
                     # TODO whatabout da file meta STUFF
                     log.error(f"An error occurred: {e}")
                     return
@@ -616,6 +625,19 @@ class BaseLoader(ABC):
                     )
                     added_columns.append(column)
         return added_columns
+
+    def _delete_columns(self, table_infos):
+        with self.engine.connect() as conn:
+            for table, df, file_id, columns in table_infos:
+                for column in columns:
+                    alter_query = f"ALTER TABLE {table} DROP COLUMN {column}"
+                    try:
+                        conn.execute(text(alter_query))
+                        log.info(f"Deleted column {column} in table {table}")
+                    # except Exception as e:
+                    except SQLAlchemyError as e:
+                        log.error(f"Error while deleting {column} from table {table}")
+                        # print(type(e))
 
     def update_table(self, table_name: str, df: pd.DataFrame) -> None:
         """
