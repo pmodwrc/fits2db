@@ -118,7 +118,7 @@ def convert_cavity_to_numeric(df,):
 
 def plot_HK_1_from_cfg(hkdata: pd.DataFrame, ax: plt.Axes, mode: str, cfg):
     __ms = 0.5
-    if mode == "day":
+    if mode == "day" or mode == 'daily':
         for a in ax.flat:
             a.set_xlabel("Time UTC")
             a.xaxis.set_major_locator(
@@ -131,6 +131,9 @@ def plot_HK_1_from_cfg(hkdata: pd.DataFrame, ax: plt.Axes, mode: str, cfg):
             a.set_xlim(start_time, end_time)
             a.grid(True)
             a.tick_params(axis="x", rotation=30)
+            # labels = a.get_xticklabels()
+            # for label in labels:
+                # label.update({'horizontalalignment': 'right'})
     
     for subplot in cfg['content']:
         axis = ax[subplot['row'], subplot['col']]
@@ -160,7 +163,7 @@ def plot_HK_1_from_cfg(hkdata: pd.DataFrame, ax: plt.Axes, mode: str, cfg):
 def plot_HK_1(hkdata: pd.DataFrame, ax: plt.Axes, mode: str):
     __ms = 0.5
 
-    if mode == "day":
+    if mode == "day" or mode == 'daily':
         for a in ax.flat:
             a.set_xlabel("Time UTC")
             a.xaxis.set_major_locator(
@@ -172,7 +175,7 @@ def plot_HK_1(hkdata: pd.DataFrame, ax: plt.Axes, mode: str):
             end_time = start_time + 1
             a.set_xlim(start_time, end_time)
             
-    if mode == "month":
+    if mode == "month" or mode == 'monthly':
         for a in ax.flat:
             a.set_xlabel("Date UTC")
             a.xaxis.set_major_locator(
@@ -183,7 +186,7 @@ def plot_HK_1(hkdata: pd.DataFrame, ax: plt.Axes, mode: str):
             end_time = mdates.date2num(hkdata["timestamp"].max().date())
             a.set_xlim(left=start_time, right=end_time+1)
 
-    if mode == "year":
+    if mode == "year" or mode == 'anual':
         for a in ax.flat:
             a.set_xlabel("Date UTC")
             a.xaxis.set_major_locator(
@@ -198,10 +201,22 @@ def plot_HK_1(hkdata: pd.DataFrame, ax: plt.Axes, mode: str):
                 mdates.MonthLocator(interval=3)
             )  # Set major ticks every 3 Days
             a.xaxis.set_major_formatter(mdates.DateFormatter("%d-%m-%y"))
+    
+    if mode == "custom":
+        for a in ax.flat:
+            a.set_xlabel("Date UTC")
+            a.xaxis.set_major_locator(
+                plt.MaxNLocator(12)
+            )
+            a.xaxis.set_major_formatter(mdates.DateFormatter("%d-%m-%y"))
 
     for a in ax.flat:
         a.grid(True)
         a.tick_params(axis="x", rotation=30)
+        # Uncomment for different xticklabels alignment
+        # labels = a.get_xticklabels()
+        # for label in labels:
+            # label.update({'horizontalalignment': 'right'})
 
     ax[0, 0].set_title("DCDC Temperatures")
     ax[0, 0].set_ylabel("Temp [°C]")
@@ -606,7 +621,7 @@ def plot_HK_1(hkdata: pd.DataFrame, ax: plt.Axes, mode: str):
 def plot_HK_2(hkdata: pd.DataFrame, ax: plt.Axes, mode: str):
     __ms = 0.5
 
-    if mode == "day":
+    if mode == "day" or mode == 'daily':
         for a in ax[:-1].flat:
             a.set_xlabel("Time UTC")
             a.xaxis.set_major_locator(
@@ -617,7 +632,7 @@ def plot_HK_2(hkdata: pd.DataFrame, ax: plt.Axes, mode: str):
             end_time = start_time + 1
             a.set_xlim(start_time, end_time)
 
-    if mode == "month":
+    if mode == "month" or mode == "monthly":
         for a in ax[:-1].flat:
             a.set_xlabel("Date UTC")
             a.xaxis.set_major_locator(
@@ -629,7 +644,7 @@ def plot_HK_2(hkdata: pd.DataFrame, ax: plt.Axes, mode: str):
             end_time = mdates.date2num(hkdata["timestamp"].max().date())
             a.set_xlim(left=start_time, right=end_time+1)
 
-    if mode == "year":
+    if mode == "year" or mode == "anual":
         for a in ax[:-1].flat:
             a.set_xlabel("Date UTC")
             a.xaxis.set_major_locator(
@@ -647,9 +662,20 @@ def plot_HK_2(hkdata: pd.DataFrame, ax: plt.Axes, mode: str):
             # a.xaxis.set_major_locator(mdates.YearLocator())
             a.xaxis.set_major_formatter(mdates.DateFormatter("%d-%m-%y"))
 
+    if mode == "custom":
+        for a in ax.flat:
+            a.set_xlabel("Date UTC")
+            a.xaxis.set_major_locator(
+                plt.MaxNLocator(12)
+            )
+            a.xaxis.set_major_formatter(mdates.DateFormatter("%d-%m-%y %H:%M"))
+
     for a in ax.flat:
         a.grid(True)
         a.tick_params(axis="x", rotation=30)
+        # labels = a.get_xticklabels()
+        # for label in labels:
+            # label.update({'horizontalalignment': 'right'})
 
     ax[0, 0].set_title("Cavity Temperatures")
     ax[0, 0].set_ylabel("Temp [°C]")
@@ -737,7 +763,7 @@ def plot_HK_2(hkdata: pd.DataFrame, ax: plt.Axes, mode: str):
     )
 
     # ax[0,1].plot(hkdata['timestamp'], hkdata['CPU_5VCPU_CM'),color='yellow',markersize=__ms)
-    ax[0, 1].set_ylim(-0.1, 1.5) #  TODO 
+    ax[0, 1].set_ylim(-0.1, 1.5) 
     ax[0, 1].legend(
         numpoints=5,
         ncol=2,
@@ -779,7 +805,7 @@ def plot_HK_2(hkdata: pd.DataFrame, ax: plt.Axes, mode: str):
     ax[1, 0].plot(hkdata["timestamp"], ___gamma, "b.", markersize=__ms, label="GAMMA")
     ax[1, 0].plot(
         hkdata["timestamp"], ___beta, "r.", markersize=__ms, label="BETA"
-    )  # TODO MAYBE
+    )
     ax[1, 0].set_ylim(-60, 60)
     ax[1, 0].legend(numpoints=5, ncol=2, loc="upper right")
 
@@ -872,7 +898,7 @@ def plot_HK_2(hkdata: pd.DataFrame, ax: plt.Axes, mode: str):
 def plot_SCI_1(hkdata: pd.DataFrame, ax: plt.Axes, mode: str):
     __ms = 0.5
 
-    if mode == "day":
+    if mode == "day" or mode == "daily":
         for a in ax.flat:
             a.set_xlabel("Time UTC")
             a.xaxis.set_major_locator(
@@ -884,7 +910,7 @@ def plot_SCI_1(hkdata: pd.DataFrame, ax: plt.Axes, mode: str):
             end_time = start_time + 1
             a.set_xlim(start_time, end_time)
 
-    if mode == "month":
+    if mode == "month" or mode == "monthly":
         for a in ax.flat:
             a.set_xlabel("Date UTC")
             a.xaxis.set_major_locator(
@@ -896,7 +922,7 @@ def plot_SCI_1(hkdata: pd.DataFrame, ax: plt.Axes, mode: str):
             end_time = mdates.date2num(hkdata["timestamp"].max().date())
             a.set_xlim(left=start_time, right=end_time+1)
 
-    if mode == "year":
+    if mode == "year" or mode == "anual":
         for a in ax.flat:
             a.set_xlabel("Date UTC")
             a.xaxis.set_major_locator(
@@ -916,10 +942,20 @@ def plot_SCI_1(hkdata: pd.DataFrame, ax: plt.Axes, mode: str):
             a.xaxis.set_major_formatter(mdates.DateFormatter("%d-%m-%y"))
             start_time = mdates.date2num(hkdata["timestamp"].min())
             end_time = mdates.date2num(hkdata["timestamp"].max())
+    if mode == "custom":
+        for a in ax.flat:
+            a.set_xlabel("Date UTC")
+            a.xaxis.set_major_locator(
+                plt.MaxNLocator(12)
+            )
+            a.xaxis.set_major_formatter(mdates.DateFormatter("%d-%m-%y"))
 
     for a in ax.flat:
         a.grid(True)
         a.tick_params(axis="x", rotation=30)
+        # labels = a.get_xticklabels()
+        # for label in labels:
+            # label.update({'horizontalalignment': 'right'})
 
     ax[0, 0].set_title("Calibration Voltages Heater Voltage")
     ax[0, 0].set_ylabel("Heater Voltage [V]")
@@ -986,7 +1022,7 @@ def plot_SCI_1(hkdata: pd.DataFrame, ax: plt.Axes, mode: str):
     )
 
     ax[1, 0].set_title("DAC Voltages")
-    if mode == "day":
+    if mode == "day" or mode == "daily":
         ax[1, 0].set_xlabel("Time UTC")
     else:
         ax[1, 0].set_xlabel("Date UTC")
@@ -1085,7 +1121,7 @@ def plot_SCI_1(hkdata: pd.DataFrame, ax: plt.Axes, mode: str):
 
 
     ax[2, 1].set_title("Shutter 1 Phase Status")
-    if mode == "day":
+    if mode == "day" or mode == "daily":
         ax[2, 1].set_xlabel("Time UTC")
     else:
         ax[2, 1].set_xlabel("Date UTC")
@@ -1127,16 +1163,60 @@ def plot_SCI_1(hkdata: pd.DataFrame, ax: plt.Axes, mode: str):
     ax[2, 1].legend(numpoints=5, ncol=2, loc="upper right")
 
 
-def plot_irr(irr_data: pd.DataFrame, ax: plt.Axes, mode: str):
+def plot_irr(irr_data: pd.DataFrame, ax: plt.Axes, mode: str='lifetime'):
     __ms = 0.5
+    if mode == "day" or mode == "daily":
+        for a in ax.flat:
+            a.set_xlabel("Time UTC")
+            a.xaxis.set_major_locator(
+                mdates.HourLocator(interval=4)
+            )  # Set major ticks every 4 hours
+            a.xaxis.set_major_formatter(mdates.DateFormatter("%Hh"))
+            start_time = mdates.date2num(irr_data["timestamp"].min())
+            end_time = start_time + 1
+            a.set_xlim(start_time, end_time)
+            
+    if mode == "month" or mode == 'monthly':
+        for a in ax.flat:
+            a.set_xlabel("Date UTC")
+            a.xaxis.set_major_locator(
+                mdates.DayLocator(bymonthday=range(1,32,3))
+            )  # Set major ticks every 3 Days
+            a.xaxis.set_major_formatter(mdates.DateFormatter("%d-%m-%y"))
+            start_time = mdates.date2num(irr_data["timestamp"].min().date())
+            end_time = mdates.date2num(irr_data["timestamp"].max().date())
+            a.set_xlim(left=start_time, right=end_time+1)
+
+    if mode == "year" or mode == 'anual':
+        for a in ax.flat:
+            a.set_xlabel("Date UTC")
+            a.xaxis.set_major_locator(
+                mdates.MonthLocator()
+            )  # Set major ticks every month
+            a.xaxis.set_major_formatter(mdates.DateFormatter("%d-%m-%y"))
+
+    if mode == "lifetime":
+        for a in ax.flat:
+            a.set_xlabel("Date UTC")
+            a.xaxis.set_major_locator(
+                mdates.MonthLocator(interval=3)
+            )  # Set major ticks every 3 months
+            a.xaxis.set_major_formatter(mdates.DateFormatter("%d-%m-%y"))
+    
+    if mode == "custom":
+        for a in ax.flat:
+            a.set_xlabel("Date UTC")
+            a.xaxis.set_major_locator(
+                plt.MaxNLocator(12)
+            )
+            a.xaxis.set_major_formatter(mdates.DateFormatter("%d-%m-%y"))
+
     for a in ax.flat:
         a.grid(True)
         a.tick_params(axis="x", rotation=30)
-        a.set_xlabel("Date UTC")
-        a.xaxis.set_major_locator(
-            mdates.MonthLocator(interval=3)
-        )  # Set major ticks every 3 Days
-        a.xaxis.set_major_formatter(mdates.DateFormatter("%d-%m-%y"))
+        # labels = a.get_xticklabels()
+        # for label in labels:
+            # label.update({'horizontalalignment': 'right'})
         a.set_ylim(1355, 1366)
 
     ax[0].set_title("Irradiance A")
@@ -1173,6 +1253,9 @@ def plot_parameter(param_data: pd.DataFrame, ax: plt.Axes):
     for a in ax.flat:
         a.grid(True)
         a.tick_params(axis="x", rotation=30)
+        # labels = a.get_xticklabels()
+        # for label in labels:
+            # label.update({'horizontalalignment': 'right'})
         a.set_xlabel("Date UTC")
         a.xaxis.set_major_locator(
             mdates.MonthLocator(interval=3)
