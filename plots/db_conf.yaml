@@ -1,0 +1,6 @@
+type: mysql
+host: localhost
+user: dara_dev
+password: password
+port: 3306
+db_name: dara

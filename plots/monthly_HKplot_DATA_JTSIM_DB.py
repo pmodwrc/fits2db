@@ -20,6 +20,7 @@ def month_year_iter( start_month, start_year, end_month, end_year ):
 hk_plotPostFix = "HK_Plot_monthly.png"
 rad_plotPostFix = "RAD_Plot_monthly.png"
 save_folder = './plots/monthly/'
+save_folder = './plots/debug/'
 
 # hk_plotPostFix = "_HK_Plot.pdf"
 # rad_plotPostFix = "_RAD_Plot.pdf"
@@ -28,6 +29,7 @@ version = " / 0.1"
 
 conn_string = "mysql+mysqlconnector://dev:password@localhost:3306/test_db"
 conn_string = "mysql+mysqlconnector://dara_dev:password@localhost:3306/dara"
+# conn_string = "mysql+mysqlconnector://dara_dev:password@localhost:3306/data_test"
 
 engine = create_engine(
     conn_string
@@ -38,10 +40,6 @@ start_month = 6
 end_year = 2023
 end_month = 12
 
-num_years = end_year - start_year
-num_months = end_month - start_month # TODO fix this doesn't work if monrths go over new year
-year = 2022
-# for month in range(start_month, start_month + num_months + 1):
 for year, month in month_year_iter(start_month, start_year, end_month, end_year):
     print(f'----- {year}-{month:02d} -----')
     housekeeping_query = f"SELECT * FROM housekeeping WHERE MONTH(timestamp) = {month} and YEAR(timestamp) = {year} order by timestamp;"
@@ -82,7 +80,7 @@ for year, month in month_year_iter(start_month, start_year, end_month, end_year)
     plot_HK_2(df_housekeeping, ax, "month")
     fig.savefig(save_folder + plotname)
     plt.close(fig)
-    # continue
+
     plotname = '_'.join([str(year), f'{month:02d}', "03", rad_plotPostFix])
     print(f"plotname: {plotname}")
     # fig, ax = create_HKfig("FY-3 JTSIM DARA RAD " + plotname + version)
