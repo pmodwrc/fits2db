@@ -224,19 +224,16 @@ class BaseLoader(ABC):
                     df.meta.columns = map(str.lower, df.meta.columns) # change to lower
                     date_column = table["date_column"]
                     df.data = self._prepare_dataframe(df.data, date_column)
-                    # self.write_table_meta(
-                        # table_name, df.data, session, self.new_file.id
-                    # )
-                    self.upsert_data_table(table_name, df.data)
-                    # self.update_table(str.lower(table_name) + "_meta", df.meta) # change to lower
-                    if self.check_table_exists(table_name):
 
+                    self.upsert_data_table(table_name, df.data)
+                    if self.check_table_exists(table_name):
                         source_table_details = self._fetch_column_details('tmp_' + table_name)
                         target_table_details = self._fetch_column_details(table_name)
                         source_table_details = {k.lower(): v for k, v in source_table_details.items()}
                         new_columns = self._add_missing_columns(
                             source_table_details, table_name, target_table_details
                         )
+
                         updated_tables.append((table_name, df, new_columns))
                     else:
                         new_tables.append((table_name, df))
@@ -361,15 +358,10 @@ class BaseLoader(ABC):
                     df.data["FILE_META_ID"] = file_record.id
                     df.data.columns = map(str.lower, df.data.columns)
                     df.meta.columns = map(str.lower, df.meta.columns)
-                    # df.meta['keyword'] = df.meta['keyword'].map(str.lower)
-
                     date_column = table["date_column"]
                     df.data = self._prepare_dataframe(df.data, date_column)
+
                     self.upsert_data_table(table_name, df.data, file_record.id)
-                    # self.write_table_meta(
-                        # table_name, df.data, session, file_record.id
-                    # )
-                    # self.update_table(table_name + "_META", df.meta)
                     remaining_tables.pop(table_name, None)
                     if self.check_table_exists(table_name):
                         source_table_details = self._fetch_column_details('tmp_' + table_name)
@@ -684,4 +676,6 @@ class BaseLoader(ABC):
             if data_column in data.columns:
                 data = data.rename(columns={data_column: 'timestamp'})
                 data['timestamp'] = pd.to_datetime(data['timestamp']) # FIX TIMESTAMP setting
+                data.dropna(subset=['timestamp'], inplace=True)
+                # data.drop(data[data.timestamp == None].index, inplace=True)
         return data
