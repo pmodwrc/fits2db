@@ -19,21 +19,23 @@ from TSI_PLOT_LIB_JTSIM_pandas import (
     convert_cavity_to_numeric,
 )
 
+
 def read_sql_config(config_file):
-    with open(config_file, 'r') as f:
+    with open(config_file, "r") as f:
         cfg = yaml.safe_load(f)
     try:
-        db_type = cfg['type']
-        host = cfg['host']
+        db_type = cfg["type"]
+        host = cfg["host"]
         connector = f"{cfg['type']}connector"
-        user = cfg['user']
-        password = cfg['password']
-        port = cfg['port']
-        db_name = cfg['db_name']
-        connection_string = f'{db_type}+{connector}://{user}:{password}@{host}:{port}/{db_name}'
+        user = cfg["user"]
+        password = cfg["password"]
+        port = cfg["port"]
+        db_name = cfg["db_name"]
+        connection_string = f"{db_type}+{connector}://{user}:{password}@{host}:{port}/{db_name}"
     except KeyError as e:
         return None
     return connection_string
+
 
 def date_iterator(start_date, end_date, offset=None):
     if offset is None:
@@ -46,60 +48,72 @@ def date_iterator(start_date, end_date, offset=None):
         lower_date = lower_date + offset
         upper_date = lower_date + offset
 
+
 def make_plots(
     dataframes, date_string, plotPostFix, mode, version, save_folder
 ):
     df_housekeeping = dataframes["housekeeping"]
 
-    plotname = "_".join(filter(None,[date_string, "01_HK_Plot", plotPostFix]))
+    plotname = "_".join(filter(None, [date_string, "01_HK_Plot", plotPostFix]))
     print(f"plotting {plotname}")
-    fig, ax = create_HKfig("FY-3 JTSIM DARA HK 1 " + date_string + f' {mode}' + version)
+    fig, ax = create_HKfig(
+        "FY-3 JTSIM DARA HK 1 " + date_string + f" {mode}" + version
+    )
     plot_HK_1(df_housekeeping, ax, mode)
     fig.savefig(save_folder + "/" + plotname)
     plt.close(fig)
 
-    plotname = "_".join(filter(None,[date_string, "02_HK_Plot", plotPostFix]))
+    plotname = "_".join(filter(None, [date_string, "02_HK_Plot", plotPostFix]))
     print(f"plotting {plotname}")
-    fig, ax = create_HKfig("FY-3 JTSIM DARA HK 2 " + date_string + f' {mode}' + version)
+    fig, ax = create_HKfig(
+        "FY-3 JTSIM DARA HK 2 " + date_string + f" {mode}" + version
+    )
     plot_HK_2(df_housekeeping, ax, mode)
     fig.savefig(save_folder + "/" + plotname)
     plt.close(fig)
 
     df_calibration = dataframes["calibration"]
 
-    plotname = "_".join(filter(None,[date_string, "RAD_Plot", plotPostFix]))
+    plotname = "_".join(filter(None, [date_string, "RAD_Plot", plotPostFix]))
     print(f"plotting {plotname}")
-    fig, ax = create_Irradfig("FY-3 JTSIM DARA RAD " + date_string + f' {mode}' + version)
+    fig, ax = create_Irradfig(
+        "FY-3 JTSIM DARA RAD " + date_string + f" {mode}" + version
+    )
     plot_SCI_1(df_calibration, ax, mode)
     fig.savefig(save_folder + "/" + plotname)
     plt.close(fig)
 
     df_irradiance = dataframes.get("irradiance", None)
     if df_irradiance is not None:
-        plotname = "_".join(filter(None,[date_string, "irradiance", plotPostFix]))
+        plotname = "_".join(
+            filter(None, [date_string, "irradiance", plotPostFix])
+        )
         # plotname = "total_irradiance.png"
         print(f"plotting {plotname}")
         fig, ax = create_irradiance_fig(
-            "FY-3 JTSIM DARA Irradiance "  + date_string + f' {mode}' + version
+            "FY-3 JTSIM DARA Irradiance " + date_string + f" {mode}" + version
         )
         plot_irr(df_irradiance, ax, mode)
-        fig.savefig(save_folder + '/' +  plotname)
+        fig.savefig(save_folder + "/" + plotname)
         plt.close(fig)
 
     df_parameter = dataframes.get("parameter", None)
     if df_parameter is not None:
-        plotname = "_".join(filter(None,[date_string, "parameterset", plotPostFix]))
+        plotname = "_".join(
+            filter(None, [date_string, "parameterset", plotPostFix])
+        )
         # plotname = "total_parameterset.png"
         print(f"plotting {plotname}")
-        fig, ax = create_HKfig("FY-3 "  + date_string + f' {mode}' + version)
+        fig, ax = create_HKfig("FY-3 " + date_string + f" {mode}" + version)
         plot_parameter(df_parameter, ax, mode)
-        fig.savefig(save_folder + '/' +  plotname)
+        fig.savefig(save_folder + "/" + plotname)
         plt.close(fig)
+
 
 def main(args):
     conn_string = read_sql_config(args.db_config)
     if conn_string is None:
-        print('Error when reading db config')
+        print("Error when reading db config")
         return
     # conn_string = "mysql+mysqlconnector://dara_dev:password@localhost:3306/dara"
     engine = create_engine(conn_string)
@@ -137,10 +151,10 @@ def main(args):
         mode = "custom"
 
     elif args.command == "lifetime":
-        mode='lifetime'
+        mode = "lifetime"
         pass
 
-    if mode != 'lifetime':
+    if mode != "lifetime":
         try:
             start_date = pd.to_datetime(start_date_arg)
             end_date = pd.to_datetime(end_date_arg)
@@ -150,62 +164,53 @@ def main(args):
         except pd.errors.ParserError as e:
             print("Date could not be parsed")
             return
-    # import ipdb; ipdb.set_trace() 
+    # import ipdb; ipdb.set_trace()
 
     version = " / 0.1"
     plotPostFix = f"{mode}.png"
     save_folder = args.save_dir
     if os.path.exists(save_folder) is False:
-        print('Save Directory does not exist.')
+        print("Save Directory does not exist.")
         return
 
     if mode == "lifetime":
         dataframes = {}
         try:
-            print('Loading from Irradiance ...')
+            print("Loading from Irradiance ...")
             irradiance_query = """SELECT 
                 `timestamp`, `irradiance_a_wm2`, `irradiance_b_wm2`, `irradiance_c_wm2`
                 FROM irradiance
                 WHERE timestamp is not null order by timestamp;"""
             df_irradiance = pd.read_sql(irradiance_query, con=engine)
             df_irradiance.columns = map(str.lower, df_irradiance.columns)
-            print("Finish loading data from Irradiance")
             print(f"Rows loaded {len(df_irradiance)}")
-            dataframes['irradiance'] = df_irradiance
+            dataframes["irradiance"] = df_irradiance
         except exc.SQLAlchemyError as e:
-            print('Could not load Irradiance Data from Database')
+            print("Could not load Irradiance Data from Database")
             print(e)
 
-        print('Loading from Parameterset ...')
+        print("Loading from Parameterset ...")
         parameter_query = """SELECT
             * FROM `parameterset` WHERE timestamp is not null"""
         df_parameter = pd.read_sql(parameter_query, con=engine)
         df_parameter.columns = map(str.lower, df_parameter.columns)
-        print("Finish loading data from Parameterset")
         print(f"Rows loaded {len(df_parameter)}")
 
         housekeeping_query = """
         SELECT * FROM housekeeping;"""
-        # SELECT * FROM housekeeping WHERE timestamp is not null ORDER BY timestamp;"""
-        # and DATE_ADD('{end}', INTERVAL 1 DAY);"""
 
         calibration_query = """
         SELECT * FROM calibration;"""
-        # SELECT * FROM calibration WHERE timestamp is not null ORDER BY timestamp;"""
-        # print(housekeeping_query)
-        # print(calibration_query)
 
-        print('Loading from Housekeeping ...')
+        print("Loading from Housekeeping ...")
         df_housekeeping = pd.read_sql(housekeeping_query, con=engine)
         df_housekeeping.columns = map(str.lower, df_housekeeping.columns)
-        print("Finish loading data from Housekeeping")
         print(f"Rows loaded {len(df_housekeeping)}")
 
-        print('Loading from Calibration ...')
+        print("Loading from Calibration ...")
         df_calibration = pd.read_sql(calibration_query, con=engine)
         df_calibration.columns = map(str.lower, df_calibration.columns)
         df_calibration = convert_cavity_to_numeric(df_calibration)
-        print("Finish loading data from Calibration")
         print(f"Rows loaded {len(df_calibration)}")
 
         date_string = ""
@@ -220,8 +225,8 @@ def main(args):
 
     for start, end in date_iterator(start_date, end_date, offset):
         dataframes = {}
-        print('')
-        print(f'Plot between {start} and {end}')
+        print("")
+        print(f"Plot between {start} and {end}")
         housekeeping_query = f"""
         SELECT * FROM housekeeping WHERE timestamp 
         between '{start}' 
@@ -234,12 +239,12 @@ def main(args):
         and '{end}'
         ORDER BY timestamp;"""
 
-        print('Loading from Housekeeping ...')
+        print("Loading from Housekeeping ...")
         df_housekeeping = pd.read_sql(housekeeping_query, con=engine)
         df_housekeeping.columns = map(str.lower, df_housekeeping.columns)
         print(f"Rows loaded {len(df_housekeeping)}")
 
-        print('Loading from Calibration ...')
+        print("Loading from Calibration ...")
         df_calibration = pd.read_sql(calibration_query, con=engine)
         df_calibration.columns = map(str.lower, df_calibration.columns)
         df_calibration = convert_cavity_to_numeric(df_calibration)
@@ -248,23 +253,25 @@ def main(args):
         date_string = ""
         if mode == "daily":
             date_string = start.strftime("%Y-%m-%d")
-        elif mode == 'custom':
-            date_string = '_'.join([start.strftime("%Y-%m-%d"), end.strftime("%Y-%m-%d")])
-        elif mode == 'monthly':
+        elif mode == "custom":
+            date_string = "_".join(
+                [start.strftime("%Y-%m-%d"), end.strftime("%Y-%m-%d")]
+            )
+        elif mode == "monthly":
             if start_date.day == 1:
                 date_string = start.strftime("%Y-%m")
             else:
                 date_string = start.strftime("%Y-%m-%d")
-                mode = 'custom'
+                mode = "custom"
         elif mode == "anual":
             if start_date.day == 1 and start_date.month == 1:
                 date_string = start.strftime("%Y")
             else:
                 date_string = start.strftime("%Y-%m-%d")
-                mode = 'custom'
+                mode = "custom"
         else:
             date_string = start.strftime("%Y-%m-%d")
-        
+
         dataframes = {
             "housekeeping": df_housekeeping,
             "calibration": df_calibration,
@@ -279,13 +286,13 @@ def main(args):
                     between '{start}' 
                     and '{end}'
                     order by timestamp;"""
-                print('Loading from Irradiance ...')
+                print("Loading from Irradiance ...")
                 df_irradiance = pd.read_sql(irradiance_query, con=engine)
                 df_irradiance.columns = map(str.lower, df_irradiance.columns)
                 print(f"Rows loaded {len(df_irradiance)}")
-                dataframes['irradiance'] = df_irradiance
+                dataframes["irradiance"] = df_irradiance
             except exc.SQLAlchemyError as e:
-                print('Could not load Irradiance Data from Database')
+                print("Could not load Irradiance Data from Database")
                 print(e)
 
         if args.add_parameter:
@@ -296,19 +303,22 @@ def main(args):
                 between '{start}' 
                 and '{end}'
                 order by timestamp;"""
-            print('Loading from Parameterset ...')
+            print("Loading from Parameterset ...")
             df_parameter = pd.read_sql(parameter_query, con=engine)
             df_parameter.columns = map(str.lower, df_parameter.columns)
             print(f"Rows loaded {len(df_parameter)}")
-            dataframes['parameter'] = df_parameter
+            dataframes["parameter"] = df_parameter
 
         make_plots(
             dataframes, date_string, plotPostFix, mode, version, save_folder
         )
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        prog="DaraPlotter", description="Program to plot dara Data", epilog="Enjoy"
+        prog="DaraPlotter",
+        description="Program to plot dara Data",
+        epilog="Enjoy",
     )
     subparsers = parser.add_subparsers(help="mode", dest="command")
     daily_parser = subparsers.add_parser("daily")
@@ -334,8 +344,12 @@ if __name__ == '__main__':
         type=str,
         default="./plots/",
     )
-    daily_parser.add_argument('--add_irradiance', action='store_true', default=False)
-    daily_parser.add_argument('--add_parameter', action='store_true', default=False)
+    daily_parser.add_argument(
+        "--add_irradiance", action="store_true", default=False
+    )
+    daily_parser.add_argument(
+        "--add_parameter", action="store_true", default=False
+    )
 
     monthly_parser.add_argument(
         "-s", "--start_month", help="Start Month in format: yyyy-mm", type=str
@@ -354,8 +368,12 @@ if __name__ == '__main__':
         type=str,
         default="./plots/",
     )
-    monthly_parser.add_argument('--add_irradiance', action='store_true', default=False)
-    monthly_parser.add_argument('--add_parameter', action='store_true', default=False)
+    monthly_parser.add_argument(
+        "--add_irradiance", action="store_true", default=False
+    )
+    monthly_parser.add_argument(
+        "--add_parameter", action="store_true", default=False
+    )
 
     anual_parser.add_argument(
         "-s", "--start_year", help="Start Year in format: yyyy", type=str
@@ -374,8 +392,12 @@ if __name__ == '__main__':
         type=str,
         default="./plots/",
     )
-    anual_parser.add_argument('--add_irradiance', action='store_true', default=False)
-    anual_parser.add_argument('--add_parameter', action='store_true', default=False)
+    anual_parser.add_argument(
+        "--add_irradiance", action="store_true", default=False
+    )
+    anual_parser.add_argument(
+        "--add_parameter", action="store_true", default=False
+    )
 
     custom_parser.add_argument(
         "-s", "--start_date", help="Startdate in format yyyy-mm-dd", type=str
@@ -394,8 +416,12 @@ if __name__ == '__main__':
         type=str,
         default="./plots/",
     )
-    custom_parser.add_argument('--add_irradiance', action='store_true', default=False)
-    custom_parser.add_argument('--add_parameter', action='store_true', default=False)
+    custom_parser.add_argument(
+        "--add_irradiance", action="store_true", default=False
+    )
+    custom_parser.add_argument(
+        "--add_parameter", action="store_true", default=False
+    )
 
     lifetime_parser.add_argument(
         "-d",
@@ -412,6 +438,6 @@ if __name__ == '__main__':
         type=str,
         default="./db_conf.yaml",
     )
-# 
+    #
     args = parser.parse_args()
     main(args)

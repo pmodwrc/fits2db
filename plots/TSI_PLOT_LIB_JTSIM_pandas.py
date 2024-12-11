@@ -1339,7 +1339,8 @@ def plot_parameter(
             a.set_xticks(
                 mdates.drange(
                     param_data["timestamp"].min().date(),
-                    param_data["timestamp"].max().date() + datetime.timedelta(1),
+                    param_data["timestamp"].max().date()
+                    + datetime.timedelta(1),
                     datetime.timedelta(3),
                 )
             )
