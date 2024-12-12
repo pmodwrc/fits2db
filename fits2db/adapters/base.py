@@ -406,7 +406,7 @@ class BaseLoader(ABC):
                 )
                 self.update_table(table + "_META", df.meta)
             
-            if self.config['fits_files']['delete_columns_from_missing_tables']:
+            if self.config['fits_files']['delete_rows_from_missing_tables']:
                 for k, table in remaining_tables.items():
                     self.delete_file_from_table(session, file_record, table)
 

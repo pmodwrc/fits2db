@@ -16,7 +16,7 @@ fits_files:
     - data/other/2024-04-01_L1a.fits
     # - path/to/file.fits
 
-  delete_columns_from_missing_tables: True
+  delete_rows_from_missing_tables: True
 
   tables:
     - name: TesTTablea
