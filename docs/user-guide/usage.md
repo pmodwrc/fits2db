@@ -43,15 +43,20 @@ fits_files:
   paths:
     - path/to_your_file/2021-07-07_L1a.fits
     - path_to_your_folder
+
+# Delete rows from above listed files from tables which are not listed below
+delete_rows_from_missing_tables: True
+
 tables:
     - name: HOUSEKEEPING
-      target_table: RAW_HOUSEKEEPING # This will be the table_name in the db
-    - name: JTSIM_BROADCAST # If no table name given it will use the orignal name
+      date_column: timestamp # This column will be interpreted as a datetime variable
+    - name: IRRADIANCE # If no table name given it will use the orignal name
+      date_column: irradiance_timeutc
 ```
 
 
 !!! note
-    if a folder is given all fits files under this folder will be taken for upload.
+    if a folder is given all fits files under this folder will be taken recursively for upload.
 
 ## __Check if the right files are taken__
 You can check if you get the right fits files with 
@@ -95,10 +100,15 @@ this will upload all the fits tables into your data base and create the meta tab
 
 ## __Update db__
 
-Once builded and you get new files or changes you can update the database. This command will check if there a new files in your defnied folders and upload them to the db. If the timestamp of your file changed to a newer date. Like when you changed a file it will also update this file to the newer version. This way the fits files and the db stay in sync. To update just run 
+Once builded and you get new files or changes you can update the database. 
+This command will check if there a new files in your defnied folders and 
+upload them to the db. If the timestamp of your file changed to a newer
+date. Like when you changed a file it will also update this file to the 
+newer version. This way the fits files and the db stay in sync. To update just run 
 
 ```bash
 $ fits2db update <path_to_config_file> 
 ```
 !!! note
-    If you add a new table in your config file the update command will check trough the older files too if this table is in this file and upload accordingly.
+    If you want to add new tables from a already updated file, you can use the ```-f``` flag
+    to force update all files specified in the config.
