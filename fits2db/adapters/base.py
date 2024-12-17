@@ -256,6 +256,8 @@ class BaseLoader(ABC):
                     log.error(f"An error occurred: {e}")
                     session.delete(self.new_file)
                     session.commit()
+                    for table, df, new_columns in updated_tables: 
+                        self.drop_table('tmp_' + table)
                     return
             for table, df, new_columns in updated_tables: 
                 self.drop_table('tmp_' + table)
@@ -318,6 +320,12 @@ class BaseLoader(ABC):
     
 
     def update_fits2db_table(self, session: Session, file_record: Fits2DbMeta):
+        """ Delete entries from each table, that belong to a specific file
+
+        Args:
+            session (Session): _description_
+            file_record (Fits2DbMeta): file meta data from the file whose data is to be deleted
+        """
         tables_to_delete = session.query(Fits2DbTableMeta).filter(
             Fits2DbTableMeta.file_meta_id == file_record.id
         )
@@ -392,6 +400,8 @@ class BaseLoader(ABC):
                     self._delete_columns(updated_tables)
                     # TODO whatabout da file meta STUFF
                     log.error(f"An error occurred: {e}")
+                    for table, df, file_id, _ in updated_tables: 
+                        self.drop_table('tmp_' + table)
                     return
             for table, df, file_id, _ in updated_tables: 
                 self.drop_table('tmp_' + table)
@@ -540,13 +550,7 @@ class BaseLoader(ABC):
         source_table_details = self._fetch_column_details(tmp_table)
         target_table_details = self._fetch_column_details(original_table)
         source_table_details = {k.lower(): v for k, v in source_table_details.items()}
-        # TODO ADD SOMEWHERE ELSE
-        # self._add_missing_columns(
-            # source_table_details, original_table, target_table_details
-        # )
-        # with self.engine.connect() as conn:
-            # transaction = conn.begin()
-            # try:
+
         if file_id is not None:
             delete_stmt = (
                 delete(original_table_obj)
@@ -563,13 +567,10 @@ class BaseLoader(ABC):
         FROM {tmp_table}
         """
         result = conn.execute(text(insert_query))
-        # transaction.commit()  # Commit the transaction
+
         log.info(
             f"Data inserted successfully, {result.rowcount} rows affected."
         )
-            # except Exception as e:
-                # transaction.rollback()  # Rollback the transaction on error
-                # log.error(f"An error occurred: {e}")
 
     def close_connection(self) -> None:
         """
@@ -622,7 +623,9 @@ class BaseLoader(ABC):
 
     def _delete_columns(self, table_infos):
         with self.engine.connect() as conn:
-            for table, df, file_id, columns in table_infos:
+            for table_info in table_infos:
+                table = table_info[0]
+                columns = table_info[-1]
                 for column in columns:
                     alter_query = f"ALTER TABLE {table} DROP COLUMN {column}"
                     try:

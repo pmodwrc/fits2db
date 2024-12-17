@@ -1,0 +1,26 @@
+database:
+  type: mysql
+  host: localhost
+  user: test_user
+  password: password
+  port: 3306
+  db_name: int_test_db
+  # port: 3006
+
+fits_files:
+  paths:
+    - data/2021-07-08_L1a.fits
+    - data/2021-07-09_L1a.fits
+    - data/irradiance/Lv_2A_2024-05-03_L1a_created-2024-07-11_14-46-00.fits
+    # - data/new_irradiance
+    - data/other/2024-04-01_L1a.fits
+    # - path/to/file.fits
+
+  delete_rows_from_missing_tables: False
+
+  tables:
+    - name: TesTTablea
+      date_column: timestamp
+        
+    - name: TesTTablec
+      date_column: timestamp
