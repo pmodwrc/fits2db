@@ -209,6 +209,7 @@ class BaseLoader(ABC):
             log.debug("Start upserting data")
 
             updated_tables = []
+            faulty_tables = []
             new_tables = []
 
             for table in table_configs:
@@ -223,7 +224,11 @@ class BaseLoader(ABC):
                     df.data.columns = map(str.lower, df.data.columns) # change to lower
                     df.meta.columns = map(str.lower, df.meta.columns) # change to lower
                     date_column = table["date_column"]
-                    df.data = self._prepare_dataframe(df.data, date_column)
+                    try:
+                        df.data = self._prepare_dataframe(df.data, date_column)
+                    except ValueError:
+                        faulty_tables.append((table_name, date_column))
+                        continue
 
                     self.upsert_data_table(table_name, df.data)
                     if self.check_table_exists(table_name):
@@ -242,10 +247,19 @@ class BaseLoader(ABC):
                 except KeyError as err:
                     # log.error(f"\n {err}")
                     log.warning(err.args[0])
-                
-                except ValueError as err:
-                    return
 
+            if len(faulty_tables) > 0:
+                log.error(f'Could not upload File {self.file.file_path}')
+                for table_name, date_column in faulty_tables:
+                    log.error(
+                        f'Error while parsing datetime column {date_column} in table {table_name}'
+                    )
+                self._delete_columns(updated_tables)
+                session.delete(self.new_file)
+                session.commit()
+                for table, df, new_columns in updated_tables: 
+                    self.drop_table('tmp_' + table)
+                return
             with self.engine.connect() as conn:
                 transaction = conn.begin()
                 try: 
@@ -256,6 +270,7 @@ class BaseLoader(ABC):
                     transaction.rollback()  # Rollback the transaction on error
                         # TODO delete file entry and exit function
                     self._delete_columns(updated_tables)
+                    log.error(f'Could not Upload {self.file.file_path}')
                     log.error(f"An error occurred: {e}")
                     session.delete(self.new_file)
                     session.commit()
@@ -358,6 +373,7 @@ class BaseLoader(ABC):
             table_configs = self.config["fits_files"]["tables"]
             log.debug("Start upserting data")
             updated_tables = []
+            faulty_tables = []
             new_tables = []
             for table in table_configs:
                 log.debug(f"Table in configs: {table}")
@@ -371,7 +387,11 @@ class BaseLoader(ABC):
                     df.data.columns = map(str.lower, df.data.columns)
                     df.meta.columns = map(str.lower, df.meta.columns)
                     date_column = table["date_column"]
-                    df.data = self._prepare_dataframe(df.data, date_column)
+                    try:
+                        df.data = self._prepare_dataframe(df.data, date_column)
+                    except ValueError as err:
+                        faulty_tables.append((table_name, date_column))
+                        continue
 
                     self.upsert_data_table(table_name, df.data, file_record.id)
                     remaining_tables.pop(table_name, None)
@@ -392,8 +412,17 @@ class BaseLoader(ABC):
                     # log.error(f"\n {err}")
                     log.warning(err.args[0])
                 
-                except pd.errors.ParserError as err:
-                    return
+            if len(faulty_tables) > 0:
+                log.error(f'Could not update File {self.file.file_path}')
+                for table_name, date_column in faulty_tables:
+                    log.error(
+                        f'Error while parsing datetime column {date_column} in table {table_name}'
+                    )
+                self._delete_columns(updated_tables)
+                session.commit()
+                for table, df, file_id, _ in updated_tables: 
+                    self.drop_table('tmp_' + table)
+                return
 
             with self.engine.connect() as conn:
                 transaction = conn.begin()
@@ -682,11 +711,10 @@ class BaseLoader(ABC):
 
         # rename the columns with the cols list.
         data.columns=cols
- 
         if data_column is not None:
             if data_column in data.columns:
                 data = data.rename(columns={data_column: 'timestamp'})
                 data['timestamp'] = pd.to_datetime(data['timestamp']) # FIX TIMESTAMP setting
                 data.dropna(subset=['timestamp'], inplace=True)
-                # data.drop(data[data.timestamp == None].index, inplace=True)
+                    # data.drop(data[data.timestamp == None].index, inplace=True)
         return data

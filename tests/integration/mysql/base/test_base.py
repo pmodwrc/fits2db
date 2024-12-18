@@ -85,7 +85,7 @@ def mock_fits_file(monkeypatch):
             dti = pd.date_range("2023-06-07 6:00:00", periods=11, freq="15Min")
             data["timestamp"] = dti
             data["timestamp"] = data["timestamp"].dt.strftime(
-                "%Y-%m-%d %hh:%mm:%ss"
+                "%Y-%m-%d %H:%M:%S"
             )
             data["stringstamp"] = data["timestamp"]
 
@@ -391,6 +391,55 @@ def test_bad_timestamp(mock_fits_file, update_db_config, db_engine):
         ]
     )
     assert len(file_data.index) == 0
+
+    assert not testtable_a['param_a'].str.startswith('corrupt').any()
+
+    assert row_num_a == 22
+    assert row_num_b == 11
+
+def test_bad_timestamp_update(mock_fits_file, update_db_config, db_engine):
+    filet = fits.FitsFile("file1")
+    filet.prefix = '1.5_'
+    filet.false_ts = True
+    ada = MySQL(update_db_config, filet)
+    ada.upload_file()
+    with db_engine.connect() as conn:
+        metadata = MetaData()
+        metadata.reflect(bind=conn)
+        tables = metadata.sorted_tables
+        table_names = [table.name for table in tables]
+        file_data = pd.read_sql("SELECT * FROM fits2db_meta WHERE filename like 'file1%'", conn)
+        id = file_data['id'][0]
+        tablea = pd.read_sql(f'SELECT * FROM testtablea WHERE file_meta_id = {id}', conn)
+        tableb = pd.read_sql(f'SELECT * FROM testtableb WHERE file_meta_id = {id}', conn)
+        tablec = pd.read_sql(f'SELECT * FROM testtableb WHERE file_meta_id = {id}', conn)
+        testtable_a = pd.read_sql('SELECT * FROM testtablea', conn)
+        count_a = pd.read_sql('SELECT count(timestamp) as a FROM testtablea', conn)
+        count_b = pd.read_sql('SELECT count(timestamp) as a FROM testtableb', conn)
+        count_c = pd.read_sql('SELECT count(timestamp) as a FROM testtablec', conn)
+        row_num_a = count_a['a'][0]
+        row_num_b = count_b['a'][0]
+        row_num_c = count_c['a'][0]
+    assert set(table_names) == set(
+        [
+            "fits2db_meta",
+            "testtablea",
+            "testtablea_meta",
+            "testtableb",
+            "testtableb_meta",
+            "fits2db_table_meta",
+            "testtablec",
+            "testtablec_meta",
+        ]
+    )
+    param_a_a = tablea['param_a_a']
+    param_a_a = param_a_a.apply(lambda x: x.startswith('1.2_'))
+    assert param_a_a.all()
+
+    param_a_a = tablec['param_a_a']
+    param_a_a = param_a_a.apply(lambda x: x.startswith('1.2_'))
+
+    assert param_a_a.all()
 
     assert not testtable_a['param_a'].str.startswith('corrupt').any()
 
