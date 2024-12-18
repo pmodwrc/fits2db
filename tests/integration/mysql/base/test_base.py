@@ -68,6 +68,7 @@ def mock_fits_file(monkeypatch):
         self.mdate = datetime.datetime.fromtimestamp(time.time())
         self.tables = {}
         self.corrupt = False
+        self.false_ts = False
         return
 
     def mock_get_table(self, name):
@@ -75,21 +76,28 @@ def mock_fits_file(monkeypatch):
             return self.tables[name]
         data = pd.DataFrame()
         # dti = pd.date_range("2023-06-07 6:00:00", periods=11, freq='15Min 0S')
-        dti = pd.date_range("2023-06-07 6:00:00", periods=11, freq="15Min")
-        data["timestamp"] = dti
+        if self.false_ts:
+            data["timestamp"] = [
+            "".join(choice(string.hexdigits) for i in range(12))
+            for i in range(11)
+        ]
+        else:
+            dti = pd.date_range("2023-06-07 6:00:00", periods=11, freq="15Min")
+            data["timestamp"] = dti
+            data["timestamp"] = data["timestamp"].dt.strftime(
+                "%Y-%m-%d %hh:%mm:%ss"
+            )
+            data["stringstamp"] = data["timestamp"]
+
         if self.corrupt:
-            data["Parma A"] = list(string.ascii_lowercase)[:11]
-            data["file meta id"] = 'gandalf'
+            data["Param A"] = list('corrupt_' + string.ascii_lowercase)[:11]
+            data["file meta id"] = 'corrupt id'
         else:
             data["PaRaM A"] = list(string.ascii_lowercase)[:11]
             data["PaRaM A a"] = [self.prefix + c * 2 for c in list(string.ascii_lowercase)[:11]]
             data["pArAm b"] = [i for i in range(11)]
             data["pARAm C"] = [i / 8 for i in range(11)]
             data["pARAm d"] = [i / 8 * (-1) ** i for i in range(11)]
-            data["timestamp"] = data["timestamp"].dt.strftime(
-                "%Y-%m-%d %hh:%mm:%ss"
-            )
-            data["stringstamp"] = data["timestamp"]
         print(data)
 
         meta = pd.DataFrame()
@@ -286,6 +294,7 @@ def test_upload_error(mock_fits_file, update_db_config, db_engine):
         tables = metadata.sorted_tables
         table_names = [table.name for table in tables]
         file_data = pd.read_sql("SELECT * FROM fits2db_meta WHERE filename like 'file3%'", conn)
+        testtable_a = pd.read_sql('SELECT * FROM testtablea', conn)
         count_a = pd.read_sql('SELECT count(timestamp) as a FROM testtablea', conn)
         count_b = pd.read_sql('SELECT count(timestamp) as a FROM testtableb', conn)
         count_c = pd.read_sql('SELECT count(timestamp) as a FROM testtablec', conn)
@@ -304,7 +313,9 @@ def test_upload_error(mock_fits_file, update_db_config, db_engine):
             "testtablec_meta",
         ]
     )
-    # assert len(file_data.index) == 0
+    assert len(file_data.index) == 0
+
+    assert not testtable_a['param_a'].str.startswith('corrupt').any()
 
     assert row_num_a == 22
     assert row_num_b == 11
@@ -322,6 +333,7 @@ def test_update_error(mock_fits_file, update_db_config, db_engine):
         tables = metadata.sorted_tables
         table_names = [table.name for table in tables]
         file_data = pd.read_sql("SELECT * FROM fits2db_meta WHERE filename like 'file3%'", conn)
+        testtable_a = pd.read_sql('SELECT * FROM testtablea', conn)
         count_a = pd.read_sql('SELECT count(timestamp) as a FROM testtablea', conn)
         count_b = pd.read_sql('SELECT count(timestamp) as a FROM testtableb', conn)
         count_c = pd.read_sql('SELECT count(timestamp) as a FROM testtablec', conn)
@@ -340,11 +352,50 @@ def test_update_error(mock_fits_file, update_db_config, db_engine):
             "testtablec_meta",
         ]
     )
-    # assert len(file_data.index) == 0
+    assert not testtable_a['param_a'].str.startswith('corrupt').any()
 
     assert row_num_a == 22
     assert row_num_b == 11
     assert row_num_c == 11
+
+
+def test_bad_timestamp(mock_fits_file, update_db_config, db_engine):
+    filet = fits.FitsFile("file4")
+    filet.prefix = '4_'
+    filet.false_ts = True
+    ada = MySQL(update_db_config, filet)
+    ada.upload_file()
+    with db_engine.connect() as conn:
+        metadata = MetaData()
+        metadata.reflect(bind=conn)
+        tables = metadata.sorted_tables
+        table_names = [table.name for table in tables]
+        file_data = pd.read_sql("SELECT * FROM fits2db_meta WHERE filename like 'file3%'", conn)
+        testtable_a = pd.read_sql('SELECT * FROM testtablea', conn)
+        count_a = pd.read_sql('SELECT count(timestamp) as a FROM testtablea', conn)
+        count_b = pd.read_sql('SELECT count(timestamp) as a FROM testtableb', conn)
+        count_c = pd.read_sql('SELECT count(timestamp) as a FROM testtablec', conn)
+        row_num_a = count_a['a'][0]
+        row_num_b = count_b['a'][0]
+        row_num_c = count_c['a'][0]
+    assert set(table_names) == set(
+        [
+            "fits2db_meta",
+            "testtablea",
+            "testtablea_meta",
+            "testtableb",
+            "testtableb_meta",
+            "fits2db_table_meta",
+            "testtablec",
+            "testtablec_meta",
+        ]
+    )
+    assert len(file_data.index) == 0
+
+    assert not testtable_a['param_a'].str.startswith('corrupt').any()
+
+    assert row_num_a == 22
+    assert row_num_b == 11
 
 def test_get_tables(mock_fits_file, update_db_config, db_engine):
     filet = fits.FitsFile("file1")
@@ -353,14 +404,9 @@ def test_get_tables(mock_fits_file, update_db_config, db_engine):
         table_names = ada.get_tables(session)
     assert set(table_names) == set(
         [
-            # "fits2db_meta",
             "testtablea",
-            # "testtablea_meta",
             "testtableb",
-            # "testtableb_meta",
-            # "fits2db_table_meta",
             "testtablec",
-            # "testtablec_meta",
         ]
     )
     pass

@@ -242,6 +242,9 @@ class BaseLoader(ABC):
                 except KeyError as err:
                     # log.error(f"\n {err}")
                     log.warning(err.args[0])
+                
+                except ValueError as err:
+                    return
 
             with self.engine.connect() as conn:
                 transaction = conn.begin()
@@ -388,6 +391,9 @@ class BaseLoader(ABC):
                 except KeyError as err:
                     # log.error(f"\n {err}")
                     log.warning(err.args[0])
+                
+                except pd.errors.ParserError as err:
+                    return
 
             with self.engine.connect() as conn:
                 transaction = conn.begin()
