@@ -4,7 +4,7 @@ To contribute to fits2db, follow these steps:
 
 1. Fork the repository by clicking "Fork" on the top right of this page.
 2. Clone your fork to your local machine
-3. Set up your local development environment.
+3. Set up your local development environment. 
 
 ## Docs setup
 ```bash

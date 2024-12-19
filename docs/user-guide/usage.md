@@ -44,7 +44,7 @@ fits_files:
     - path/to_your_file/2021-07-07_L1a.fits
     - path_to_your_folder
 
-# Delete rows from above listed files from tables which are not listed below
+# Delete rows from above listed files from tables which are not listed below. By default False
 delete_rows_from_missing_tables: True
 
 tables:

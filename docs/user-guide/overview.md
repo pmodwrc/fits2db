@@ -39,11 +39,14 @@ Before using fits2db, you need to create a configuration yaml file. This file co
     paths:
         - tests\unit\data\2021-07-07_L1a.fits
         - test\unit\data # If just a path is given it will search recursive for fits files
+    
+    delete_rows_from_missing_tables: False # [optional] by default false
 
     tables: # The tables from the fitsfiles you want to upload
         - name: HOUSEKEEPING
-        target_table: RAW_HOUSEKEEPING
+          date_column: timetsamp
         - name: JTSIM_BROADCAST
+          date_column: timestamp
 
     ```
 ### Configuration Parameters
