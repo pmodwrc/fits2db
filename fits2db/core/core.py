@@ -184,6 +184,16 @@ class Fits2db:
         Args:
             reset (bool): Whether to reset the database before building.
         """
+        while True:
+            user_input = input(f"This will remove all tables from the database '{self.configs['database']['db_name']}'.\nDo you want to continue? (yes/no): ")
+            if user_input.lower() in ["yes", "y"]:
+                print("Continuing...")
+                break
+            elif user_input.lower() in ["no", "n"]:
+                print("Exiting...")
+                return
+            else:
+                print("Invalid input. Please enter yes/no.")
         log.debug(f"Start building db with reset = {reset}")
         writer = DBWriter(self.configs)
         if reset:
