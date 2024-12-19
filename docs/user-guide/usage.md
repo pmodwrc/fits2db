@@ -1,7 +1,7 @@
 # Usage
 
 ## __Getting help__
-If you need some information about a command you can always pass the `--help` flag to get some information
+If you need some information about a command you can always pass the `--help` flag to get some information.
 
 ## __Generate a config file__
 First you can generate a template config file:
@@ -93,9 +93,13 @@ Now upload the data into our data base we use the build command
 $ fits2db build <path_to_config_file> 
 ```
 this will upload all the fits tables into your data base and create the meta tables to keep track on changes of the files
+When running thei build command the user is prompted to confirm the action to remove all existing data from the configured database.
+If the user denies, the build command is aborted.
 
 !!! warning
-    If you rerun the build command it acts as an reset. it will drop the tables and reupload all data to have a fresh start. This is only recommend to use when you lost track of some changes in the data you have done manually and you are not sure you corrupted the data.
+    If you rerun the build command it acts as an reset.
+    It will drop the tables and reupload all data to have a fresh start.
+    This is only recommend to use when you lost track of some changes in the data you have done manually and you are not sure you corrupted the data.
 
 
 ## __Update db__
@@ -112,3 +116,11 @@ $ fits2db update <path_to_config_file>
 !!! note
     If you want to add new tables from a already updated file, you can use the ```-f``` flag
     to force update all files specified in the config.
+    This can for example be used to add additional tables from a already uploaded file to the database.
+
+
+### Remove files from tables
+With the `remove_rows_from_missing_tables` option, one can remove entries form columns.
+For example if a upladed file has entries in Table `a` and `b` and the update command is excecuted with only the 
+table `a` configured and `remove_rows_from_missing_tables` set to True, then the rows from all configured files from 
+table `b` will be removed.

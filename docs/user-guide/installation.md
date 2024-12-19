@@ -24,7 +24,7 @@ Clone this repo to your local machine. Once cloned navigate to the `root` direct
 With this the `fits2db` lib should be installed. You can test if its properly installed by running the version command to check if you got the right version
 ```bash title="cmd"
 >fits2db --version
->>> fits2db, version 0.0.1
+>>> fits2db, version 0.1.0
 ```
 
 Alternatively it can be installed from git with 
