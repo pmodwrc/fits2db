@@ -166,3 +166,10 @@ cython_debug/
 # Pypi configs
 .pypirc
 tests/unit/data/config.yaml
+
+data/
+configs/
+
+plots/plots
+plots/test
+plots/live/

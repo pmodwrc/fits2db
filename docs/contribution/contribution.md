@@ -6,7 +6,7 @@ There are many ways you can contribute to our project:
 
 - **Bug Reports**: Report issues you encounter on our [Issues page](https://github.com/pmodwrc/fits2db/issues).
 - **Feature Requests**: Suggest new features or improvements in our [Issues page](https://github.com/pmodwrc/fits2db/issues).
-- **Start a discussion**: If you have some discussion point or suggestions yo ucan start a [Discussion](https://github.com/pmodwrc/fits2db/discussions).
+- **Start a discussion**: If you have some discussion point or suggestions you can start a [Discussion](https://github.com/pmodwrc/fits2db/discussions).
 - **Documentation**: Help us improve or expand our documentation.
 - **Code**: Contribute bug fixes or implement new features.
 

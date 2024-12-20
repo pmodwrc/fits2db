@@ -12,7 +12,9 @@
 ### Installation
 To install fits2db, follow these steps:
 
-1. Dependencies: Ensure you have Python installed on your system along with necessary libraries. You might need libraries like astropy for handling FITS files and SQLAlchemy for database interactions.
+1. Dependencies: Ensure you have Python installed on your system.
+    The Required libraries will be installed alongside fits2db.
+    These dependencies include libraries like astropy for handling FITS files and SQLAlchemy for database interactions. 
 
 2. Install fits2db:
 
@@ -39,11 +41,14 @@ Before using fits2db, you need to create a configuration yaml file. This file co
     paths:
         - tests\unit\data\2021-07-07_L1a.fits
         - test\unit\data # If just a path is given it will search recursive for fits files
+    
+    delete_rows_from_missing_tables: False # [optional] by default false
 
     tables: # The tables from the fitsfiles you want to upload
         - name: HOUSEKEEPING
-        target_table: RAW_HOUSEKEEPING
+          date_column: timetsamp
         - name: JTSIM_BROADCAST
+          date_column: timestamp
 
     ```
 ### Configuration Parameters
@@ -57,12 +62,15 @@ Before using fits2db, you need to create a configuration yaml file. This file co
 
 - fits_files: A list of directories or paths containing your FITS files.
     - path: Path to the directory with FITS files.
+    - delete_rows_from_missing_tables: Sets wheter entries in tables not specified in the config on updated files are removed during the update of a file.
     - tables: Names of the tables to create and populate in the database.
+        - date_column: column in the table that contains a datetime value. This column will be uploaded to the database as type 'datetime'
 
 ## Usage
 ### Initial Setup
 
-To initialize the database and load data from the FITS files, use the rebuild command. This command creates the necessary tables in the SQL database and populates them with data from the FITS files.
+To initialize the database and load data from the FITS files, use the rebuild command. 
+This command creates the necessary tables in the SQL database and populates them with data from the FITS files.
 
 ## Additional Resources
 

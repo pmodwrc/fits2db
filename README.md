@@ -23,9 +23,13 @@ This is a cli tool to extract table data from a fits file and write it down in a
 | Postgres |  under validation |
 
 ## Installation 
-For installation you can use pip
+For installation up to version 0.0.3 can be installed with pip
 ```bash 
 pip install fits2db
+```
+For newer verions use the git repository
+```bash
+pip install git+https://github.com/pmodwrc/fits2db.git@main
 ```
 check if you got the right version with 
 ```bash 
@@ -54,9 +58,13 @@ fits_files:
   paths:
     - path/to_your_file/2021-07-07_L1a.fits
     - path_to_your_folder
+
+# Delete rows from above listed files from tables which are not listed below
+delete_rows_from_missing_tables: True
+
 tables:
     - name: HOUSEKEEPING
-      target_table: RAW_HOUSEKEEPING # This will be the table_name in the db
+      date_column: timestamp # This column will be interpreted as a datetime variable
     - name: OTHER_TABLE # If no table name given it will use the orignal name
 ```
 
@@ -74,6 +82,14 @@ This will create the following tables:
 | OTHER_TABLE |   Contains the data of your fits files tables HOUSEKEEPING  merged|
 | OTHER_TABLE_META |  Contains the Column information from the fits files|
 
-
-
-
+To add new Files to a existing database use
+```
+fits2db update <path_to_config_yaml>
+```
+Files which are not yet in the database are added. 
+Already exisitng files are only updated, if their last change time is newer than
+the already existing one.
+To force the update of already uploaded files use
+```
+fits2db update <path_to_config_yaml> -f
+```

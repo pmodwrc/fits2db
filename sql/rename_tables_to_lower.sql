@@ -1,0 +1,16 @@
+rename table PARAMETERSET_META to parameterset_meta;
+rename table CAVITY_EXPOSURE_META to cavity_exposure_meta;
+rename table TELEMETRY to telemetry;
+rename table CAVITY_EXPOSURE to cavity_exposure;
+rename table HOUSEKEEPING_META to housekeeping_meta;
+rename table SHUTTER to shutter;
+rename table CALIBRATION_META to calibration_meta;
+rename table FITS2DB_TABLE_META to fits2db_table_meta;
+rename table PARAMETERSET to parameterset;
+rename table SHUTTER_META to shutter_meta;
+rename table CALIBRATION to calibration;
+rename table HOUSEKEEPING to housekeeping;
+rename table FITS2DB_META to fits2db_meta;
+rename table JTSIM_BROADCAST_META to jtsim_broadcast_meta;
+rename table TELEMETRY_META to telemetry_meta;
+rename table JTSIM_BROADCAST to jtsim_broadcast;

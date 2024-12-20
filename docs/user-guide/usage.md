@@ -1,7 +1,7 @@
 # Usage
 
 ## __Getting help__
-If you need some information about a command you can always pass the `--help` flag to get some information
+If you need some information about a command you can always pass the `--help` flag to get some information.
 
 ## __Generate a config file__
 First you can generate a template config file:
@@ -43,15 +43,23 @@ fits_files:
   paths:
     - path/to_your_file/2021-07-07_L1a.fits
     - path_to_your_folder
+
+# Delete rows from above listed files from tables which are not listed below. By default False
+delete_rows_from_missing_tables: True
+
 tables:
     - name: HOUSEKEEPING
-      target_table: RAW_HOUSEKEEPING # This will be the table_name in the db
-    - name: JTSIM_BROADCAST # If no table name given it will use the orignal name
+      date_column: timestamp # This column will be interpreted as a datetime variable
+    - name: IRRADIANCE # If no table name given it will use the orignal name
+      date_column: irradiance_timeutc
 ```
 
 
 !!! note
-    if a folder is given all fits files under this folder will be taken for upload.
+    if a folder is given all fits files under this folder will be taken recursively for upload.
+
+!!! note 
+    if the date column is not 'timestamp', a copy of the date column called 'timestamp' is created. This is due to backward compatibility reasons.
 
 ## __Check if the right files are taken__
 You can check if you get the right fits files with 
@@ -88,17 +96,34 @@ Now upload the data into our data base we use the build command
 $ fits2db build <path_to_config_file> 
 ```
 this will upload all the fits tables into your data base and create the meta tables to keep track on changes of the files
+When running thei build command the user is prompted to confirm the action to remove all existing data from the configured database.
+If the user denies, the build command is aborted.
 
 !!! warning
-    If you rerun the build command it acts as an reset. it will drop the tables and reupload all data to have a fresh start. This is only recommend to use when you lost track of some changes in the data you have done manually and you are not sure you corrupted the data.
+    If you rerun the build command it acts as an reset.
+    It will drop the tables and reupload all data to have a fresh start.
+    This is only recommend to use when you lost track of some changes in the data you have done manually and you are not sure you corrupted the data.
 
 
 ## __Update db__
 
-Once builded and you get new files or changes you can update the database. This command will check if there a new files in your defnied folders and upload them to the db. If the timestamp of your file changed to a newer date. Like when you changed a file it will also update this file to the newer version. This way the fits files and the db stay in sync. To update just run 
+Once builded and you get new files or changes you can update the database. 
+This command will check if there a new files in your defnied folders and 
+upload them to the db. If the timestamp of your file changed to a newer
+date. Like when you changed a file it will also update this file to the 
+newer version. This way the fits files and the db stay in sync. To update just run 
 
 ```bash
 $ fits2db update <path_to_config_file> 
 ```
 !!! note
-    If you add a new table in your config file the update command will check trough the older files too if this table is in this file and upload accordingly.
+    If you want to add new tables from a already updated file, you can use the ```-f``` flag
+    to force update all files specified in the config.
+    This can for example be used to add additional tables from a already uploaded file to the database.
+
+
+### Remove files from tables
+With the `remove_rows_from_missing_tables` option, one can remove entries form columns.
+For example if a upladed file has entries in Table `a` and `b` and the update command is excecuted with only the 
+table `a` configured and `remove_rows_from_missing_tables` set to True, then the rows from all configured files from 
+table `b` will be removed.

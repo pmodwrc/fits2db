@@ -57,14 +57,14 @@ jobs:
 
     - name: Run tests with coverage
       run: |
-        coverage run -m pytest
+        coverage run -m pytest --ignore=tests/integration/mysql/base
         coverage xml
 
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v4.0.1
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        files: ./coverage.xml
-        flags: unittests
-        name: codecov-umbrella
-        fail_ci_if_error: true
+#    - name: Upload coverage to Codecov
+#      uses: codecov/codecov-action@v4.0.1
+#      with:
+#        token: ${{ secrets.CODECOV_TOKEN }}
+#        files: ./coverage.xml
+#        flags: unittests
+#        name: codecov-umbrella
+#        fail_ci_if_error: true

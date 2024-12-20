@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fits2db"
-version = "0.0.3"
+version = "0.1.0"
 authors = [
   { name="Cédric Renda", email="cedric.renda@hotmail.com" },
 ]
@@ -41,7 +41,8 @@ dependencies = [
 "numpy >= 1.0.0, < 2.0",
 "sqlalchemy >= 2.0.0",
 "tqdm >= 4.0.0",
-"mysql-connector-python >= 8.0.0"
+"mysql-connector-python >= 8.0.0",
+"click >=8.1.7"
 ]
 
 [project.urls]

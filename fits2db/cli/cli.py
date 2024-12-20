@@ -3,7 +3,7 @@ from .helper_func import tables, files, build, init, update
 from .utils import set_verbosity
 
 
-@click.version_option("0.0.1b", "--version")
+@click.version_option("0.1.0", "--version")
 @click.group(
     help="""
     Fits2DB CLI can be used to extract data from fits files and load them into a Database.

@@ -1,0 +1,262 @@
+type: plot
+content:
+  - row: 0
+    col: 0
+    title: DCDC Temperatures
+    ylabel: Temp [°C]
+    ylims: [-20,50]
+    y_offset: -273.15
+    legend_loc: upper right
+    data:
+      - x: timestamp
+        y: dcdc_12vdcdc_temp
+        marker: o
+        color: blue
+        label: DCDC_12VDCDC_Temp
+      - x: timestamp
+        y: dcdc_5vdcdc_temp
+        marker: o
+        color: red
+        label: DCDC_5VDCDC_Temp
+      - x: timestamp
+        y: dcdc_icl_temp
+        marker: o
+        color: green
+        label: DCDC_ICL_Temp
+      - x: timestamp
+        y: dcdc_cs_temp
+        marker: o
+        color: cyan
+        label: DCDC_CS_Temp
+  - row: 0
+    col: 1
+    title: Currents
+    ylabel: Current [mA]
+    ylims: [-0.1,0.9]
+    y_offset: 0
+    legend_loc: upper right
+    data:
+      - x: timestamp
+        y: dcdc_5vpos_d_cm
+        marker: o
+        color: blue
+        label: DCDC_5VPOS_D_CM
+      - x: timestamp
+        y: dcdc_5vpos_a_cm
+        marker: o
+        color: red
+        label: DCDC_5VPOS_A_CM
+      - x: timestamp
+        y: dcdc_12vpos_cm
+        marker: o
+        color: green
+        label: DCDC_12VPOS_CM
+      - x: timestamp
+        y: dcdc_12vneg_cm
+        marker: o
+        color: cyan
+        label: DCDC_12VNEG_CM
+      - x: timestamp
+        y: dcdc_28v_prim_current
+        marker: o
+        color: magenta
+        label: DCDC_28V_PRIM_CURRENT
+  - row: 1
+    col: 0
+    title: CPU Temperatures
+    ylabel: Temp [°C]
+    ylims: [-20,50]
+    y_offset: -273.15
+    legend_loc: lower right
+    data:
+      - x: timestamp
+        y: cpu_hkref_temp
+        marker: o
+        color: blue
+        label: CPU_HKREF_TEMP
+      - x: timestamp
+        y: cpu_adc_temp
+        marker: o
+        color: red
+        label: CPU_ADC_TEMP
+      - x: timestamp
+        y: cpu_cpu_temp
+        marker: o
+        color: green
+        label: CPU_CPU_TEMP
+      - x: timestamp
+        y: cpu_mram_temp
+        marker: o
+        color: cyan
+        label: CPU_MRAM_TEMP
+      - x: timestamp
+        y: cpu_sram_temp
+        marker: o
+        color: magenta
+        label: CPU_SRAM_TEMP
+      - x: timestamp
+        y: cpu_osc_temp
+        marker: o
+        color: yellow
+        label: CPU_OSC_TEMP
+  - row: 1
+    col: 1
+    title: Secondary Voltages
+    ylabel: Voltage [V]
+    ylims: [-12.5,22]
+    y_offset: 0
+    legend_loc: upper right
+    data:
+      - x: timestamp
+        y: dcdc_5vpos_a_prot
+        marker: o
+        color: blue
+        label: DCDC_5VPOS_A_PROT
+      - x: timestamp
+        y: dcdc_5vpos_d_prot
+        marker: o
+        color: red
+        label: DCDC_5VPOS_D_PROT
+      - x: timestamp
+        y: dcdc_12vneg_prot
+        marker: o
+        color: green
+        label: DCDC_12VNEG_PROT
+      - x: timestamp
+        y: dcdc_12vpos_prot
+        marker: o
+        color: cyan
+        label: DCDC_12VPOS_PROT
+      - x: timestamp
+        y: cpu_vcc
+        marker: o
+        color: yellow
+        label: CPU_VCC
+      - x: timestamp
+        y: cpu_vcc_3v3
+        marker: o
+        color: pink
+        label: CPU_VCC_3V3
+
+  - row: 2
+    col: 0
+    title: DAQ Temperatures
+    ylabel: Temp [°C]
+    ylims: [-20,50]
+    y_offset: -273.15
+    legend_loc: lower left
+    data:
+      - x: timestamp
+        y: daq_inst_a_i_temp
+        marker: o
+        color: blue
+        label: DAQ_INST_A_I_TEMP
+      - x: timestamp
+        y: daq_inst_b_i_temp
+        marker: o
+        color: red
+        label: DAQ_INST_B_I_TEMP
+      - x: timestamp
+        y: daq_inst_c_i_temp
+        marker: o
+        color: green
+        label: DAQ_INST_C_I_TEMP
+      - x: timestamp
+        y: daq_ref_temp
+        marker: o
+        color: cyan
+        label: DAQ_REF_TEMP
+      - x: timestamp
+        y: daq_a_temp
+        marker: o
+        color: magenta
+        label: DAQ_A_TEMP
+      - x: timestamp
+        y: daq_b_temp
+        marker: o
+        color: yellow
+        label: DAQ_B_TEMP
+      - x: timestamp
+        y: daq_c_temp
+        marker: o
+        color: pink
+        label: DAQ_C_TEMP
+      - x: timestamp
+        y: daq_d_temp
+        marker: o
+        color: purple
+        label: DAQ_D_TEMP
+      - x: timestamp
+        y: daq_e_temp
+        marker: o
+        color: orange
+        label: DAQ_E_TEMP
+
+  - row: 2
+    col: 1
+    title: DAQ Temperatures
+    ylabel: Temp [°C]
+    ylims: [-20,50]
+    y_offset: -273.15
+    legend_loc: upper right
+    data:
+      - x: timestamp
+        y: sb_sha_board_temp
+        marker: o
+        color: blue
+        label: SB_SHA_BOARD_TEMP
+      - x: timestamp
+        y: sb_shb_board_temp
+        marker: o
+        color: red
+        label: SB_SHB_BOARD_TEMP
+      - x: timestamp
+        y: sb_shc_board_temp
+        marker: o
+        color: green
+        label: SB_SHC_BOARD_TEMP
+      - x: timestamp
+        y: sb_mot_a_temp
+        marker: o
+        color: cyan
+        label: SB_MOT_A_TEMP
+      - x: timestamp
+        y: sb_mot_b_temp
+        marker: o
+        color: magenta
+        label: SB_MOT_B_TEMP
+      - x: timestamp
+        y: sb_mot_c_temp
+        marker: o
+        color: yellow
+        label: SB_MOT_C_TEMP
+      - x: timestamp
+        y: sb_reg_a_temp
+        marker: o
+        color: pink
+        label: SB_REG_A_TEMP
+      - x: timestamp
+        y: sb_reg_b_temp
+        marker: o
+        color: purple
+        label: SB_REG_B_TEMP
+      - x: timestamp
+        y: sb_reg_c_temp
+        marker: o
+        color: orange
+        label: SB_REG_C_TEMP
+      - x: timestamp
+        y: sb_mcu_temp
+        marker: o
+        color: lightblue
+        label: SB_MCU_TEMP
+      - x: timestamp
+        y: sb_case_temp
+        marker: o
+        color: lightgreen
+        label: SB_CASE_TEMP
+      - x: timestamp
+        y: sb_bottom_temp
+        marker: o
+        color: grey
+        label: SB_BOTTOM_TEMP

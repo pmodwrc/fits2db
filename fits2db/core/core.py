@@ -184,6 +184,16 @@ class Fits2db:
         Args:
             reset (bool): Whether to reset the database before building.
         """
+        while True:
+            user_input = input(f"This will remove all tables from the database '{self.configs['database']['db_name']}'.\nDo you want to continue? (yes/no): ")
+            if user_input.lower() in ["yes", "y"]:
+                print("Continuing...")
+                break
+            elif user_input.lower() in ["no", "n"]:
+                print("Exiting...")
+                return
+            else:
+                print("Invalid input. Please enter yes/no.")
         log.debug(f"Start building db with reset = {reset}")
         writer = DBWriter(self.configs)
         if reset:
@@ -199,10 +209,11 @@ class Fits2db:
             except ValueError as err:
                 log.error(f"\n {err}")
 
-    def get_db_diff(self) -> None:
+    def get_db_diff(self, force=False) -> None:
         """
         Compare file metadata with database entries to find new or updated files.
         """
+        self.file_infos['last_file_mutation'] = self.file_infos['last_file_mutation'].dt.round('s')
         merged_df = pd.merge(
             self.file_infos,
             self.db_file_infos,
@@ -212,12 +223,15 @@ class Fits2db:
         )
 
         new_files = merged_df[merged_df["last_file_mutation_db"].isna()]
-        files2update = merged_df[
-            (
-                merged_df["last_file_mutation_file"]
-                > merged_df["last_file_mutation_db"]
-            )
-        ]
+        if force:
+            files2update = merged_df[merged_df["last_file_mutation_db"].notna()]
+        else:
+            files2update = merged_df[
+                (
+                    merged_df["last_file_mutation_file"]
+                    > merged_df["last_file_mutation_db"]
+                )
+            ]
         self.new_files = new_files[
             ["filename", "filepath", "last_file_mutation_file"]
         ].rename(columns={"last_file_mutation_file": "last_file_mutation"})
@@ -225,7 +239,7 @@ class Fits2db:
             ["filename", "filepath", "last_file_mutation_file"]
         ].rename(columns={"last_file_mutation_file": "last_file_mutation"})
 
-    def update_db(self) -> None:
+    def update_db(self, force=False) -> None:
         """
         Update the database with new or modified FITS files.
         """
@@ -234,7 +248,7 @@ class Fits2db:
         writer = DBWriter(self.configs)
         self.db_file_infos = writer.get_db_file_infos()
         log.info(self.db_file_infos)
-        self.get_db_diff()
+        self.get_db_diff(force=force) # TODO Make sideeffects of function clear!!
 
         fits_file_paths = self.new_files["filepath"].to_list()
         for path in tqdm(fits_file_paths, desc="Upload new files"):

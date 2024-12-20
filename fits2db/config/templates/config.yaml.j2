@@ -10,7 +10,10 @@ fits_files:
     - path/to/dir
     - path/to/file.fits
 
+# Delete rows from above listed files from tables which are not listed below
+delete_rows_from_missing_tables: False 
+
   tables:
     - name: HOUSEKEEPING
-      target_table: RAW_HOUSEKEEPING
+    date_column: timestamp # column containing dates, so that they will be properly converted
     - name: OTHER_TABLE 

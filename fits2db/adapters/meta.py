@@ -67,7 +67,7 @@ class Fits2DbMeta(Base):
 
     """
 
-    __tablename__ = "FITS2DB_META"
+    __tablename__ = "fits2db_meta"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     filename = Column(Text)
@@ -90,10 +90,10 @@ class Fits2DbMeta(Base):
 
 
 class Fits2DbTableMeta(Base):
-    __tablename__ = "FITS2DB_TABLE_META"
+    __tablename__ = "fits2db_table_meta"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    file_meta_id = Column(Integer, ForeignKey("FITS2DB_META.id"))
+    file_meta_id = Column(Integer, ForeignKey("fits2db_meta.id"))
     tablename = Column(Text)
     record_count = Column(Integer)
     column_count = Column(Integer)

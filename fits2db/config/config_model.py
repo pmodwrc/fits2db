@@ -53,9 +53,10 @@ class TableConfig(BaseModel):
     """Table configuration."""
 
     name: StrictStr
-    ingest_all_columns: Optional[bool] = True
+    ingest_all_columns: Optional[bool] = True # No functionality yet
     description: Optional[StrictStr] = None
-    columns: Optional[list] = None
+    columns: Optional[list] = None # No functionality yet
+    date_column: Optional[str] = None
 
 
 class FitsConfig(BaseModel):
@@ -63,6 +64,7 @@ class FitsConfig(BaseModel):
 
     paths: list
     tables: list[TableConfig]
+    delete_rows_from_missing_tables: Optional[bool] = False
 
 
 class ConfigFileValidator(BaseModel):
