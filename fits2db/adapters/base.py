@@ -177,8 +177,6 @@ class BaseLoader(ABC):
         Cleans the database by dropping specific tables and metadata tables.
         """
         with self.db_session() as session:
-            # self.drop_user_tables(session)
-            # self.delete_meta_tables(session)
         # Easyer way to drop tables
             meta = MetaData()
             meta.reflect(bind=self.engine)
@@ -713,8 +711,8 @@ class BaseLoader(ABC):
         data.columns=cols
         if data_column is not None:
             if data_column in data.columns:
-                data = data.rename(columns={data_column: 'timestamp'})
-                data['timestamp'] = pd.to_datetime(data['timestamp']) # FIX TIMESTAMP setting
-                data.dropna(subset=['timestamp'], inplace=True)
-                    # data.drop(data[data.timestamp == None].index, inplace=True)
+                # data = data.rename(columns={data_column: 'timestamp'})
+                data[data_column] = pd.to_datetime(data[data_column]) # FIX TIMESTAMP setting
+                data.dropna(subset=[data_column], inplace=True)
+                data['timestamp'] = data[data_column] # FIX TIMESTAMP setting
         return data

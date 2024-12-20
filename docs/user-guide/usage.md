@@ -58,6 +58,9 @@ tables:
 !!! note
     if a folder is given all fits files under this folder will be taken recursively for upload.
 
+!!! note 
+    if the date column is not 'timestamp', a copy of the date column called 'timestamp' is created. This is due to backward compatibility reasons.
+
 ## __Check if the right files are taken__
 You can check if you get the right fits files with 
 ```bash

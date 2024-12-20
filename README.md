@@ -29,7 +29,7 @@ pip install fits2db
 ```
 For newer verions use the git repository
 ```bash
-pip pip install git+https://github.com/alalain/fits2db.git@main
+pip install git+https://github.com/pmodwrc/fits2db.git@main
 ```
 check if you got the right version with 
 ```bash 

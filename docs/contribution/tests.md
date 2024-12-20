@@ -44,4 +44,5 @@ to show the results you can run either of these
     coverage html
     ```
 
+The tests of the base.py script are excluded in the github actions, but will run when pytest is called locally.
 
