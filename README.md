@@ -23,7 +23,7 @@ This is a cli tool to extract table data from a fits file and write it down in a
 | Postgres |  under validation |
 
 ## Installation 
-For installation with pip over the offical pypi
+For installation with pip over the official pypi package index
 ```bash 
 pip install fits2db
 ```
