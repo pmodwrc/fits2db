@@ -23,11 +23,11 @@ This is a cli tool to extract table data from a fits file and write it down in a
 | Postgres |  under validation |
 
 ## Installation 
-For installation up to version 0.0.3 can be installed with pip
+For installation with pip over the offical pypi
 ```bash 
 pip install fits2db
 ```
-For newer verions use the git repository
+For newer dev verions use the git repository
 ```bash
 pip install git+https://github.com/pmodwrc/fits2db.git@main
 ```
